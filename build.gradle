@@ -1,0 +1,31 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.4'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	//SpringBoot MySQL
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.5'
+	runtimeOnly 'mysql:mysql-connector-java:8.0.28'
+	//SpringBoot Web starter
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.6.5'
+	//SpringBoot devtools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.6.5'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.6.5'
+	//Gson
+	implementation 'com.google.code.gson:gson:2.9.0'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
