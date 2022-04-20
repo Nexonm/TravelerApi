@@ -58,6 +58,11 @@ public class UserController {
         }
     }
 
+    /** Main registration method. It is used to send first data to server
+     *
+     * @param gsonStr str with 3 extra fields
+     * @return
+     */
     @PostMapping("/reg-add")
     public ResponseEntity registrationAdd(@RequestBody String gsonStr) {
         try {
