@@ -72,7 +72,7 @@ public class UserService {
         UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
         UserEntity userMain = userRepo.findByEmail(user.getEmail());
         userMain.combine(user);
-        return userRepo.save(user);
+        return userRepo.save(userMain);
     }
 
     public UserModel getOnePersonById(long id) throws UserDoeNottExistsException {
