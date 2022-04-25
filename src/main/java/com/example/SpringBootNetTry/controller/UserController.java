@@ -1,19 +1,13 @@
 package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
-import com.example.SpringBootNetTry.exception.user.UserAlreadyExistsException;
-import com.example.SpringBootNetTry.exception.user.UserDoeNottExistsException;
+import com.example.SpringBootNetTry.exception.user.*;
 import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.service.UserService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.persistence.PostUpdate;
-import javax.servlet.annotation.MultipartConfig;
 
 @RestController
 @RequestMapping("/people")
@@ -38,8 +32,8 @@ public class UserController {
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }
-
-    /** Main registration method. It is used to send first data to server
+    /**
+     * Main registration method. It is used to send first data to server
      *
      * @param gsonStr str with 5 main fields
      * @return
@@ -47,10 +41,15 @@ public class UserController {
     @PostMapping("/reg-main")
     public ResponseEntity registrationMain(@RequestBody String gsonStr) {
         try {
-            pService.registrationMain(gsonStr);
+            System.out.println("Reg new User: "+gsonStr.toString());
+            pService.registrationMain(gsonStr.toString());
             return ResponseEntity.ok("Человек был сохранён");
 
-        } catch (UserAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException |
+                UserDataNoDateOfBirthException |
+                UserDataNoSecondNameException |
+                UserDataNoFirstNameException  |
+                UserDataNoEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,7 +57,29 @@ public class UserController {
         }
     }
 
-    /** Main registration method. It is used to send first data to server
+//    @PostMapping("/reg-main")
+//    public ResponseEntity registrationMain(@RequestBody UserEntity user) {
+//        try {
+//            System.out.println("Reg new User: "+user.toString());
+//            //pService.registrationMain(gsonStr.toString());
+//            return ResponseEntity.ok("Человек был сохранён");
+//
+//        }
+////        catch (UserAlreadyExistsException |
+////                UserDataNoDateOfBirthException |
+////                UserDataNoSecondNameException |
+////                UserDataNoFirstNameException  |
+////                UserDataNoEmailException e) {
+////            return ResponseEntity.badRequest().body(e.getMessage());
+////        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.badRequest().body("Произошла ошибка");
+//        }
+//    }
+
+    /**
+     * Main registration method. It is used to send first data to server
      *
      * @param gsonStr str with 3 extra fields
      * @return
@@ -69,7 +90,8 @@ public class UserController {
 //            pService.registrationAdd(gsonStr);
             return ResponseEntity.ok(UserModel.toUserModel(pService.registrationAdd(gsonStr), false));
 
-        } catch (UserAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException |
+                UserDataNoEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +104,7 @@ public class UserController {
         System.out.println("some on trying to get info" + id);
         try {
             return ResponseEntity.ok(pService.getOnePersonById(id));
-        } catch (UserDoeNottExistsException e) {
+        } catch (UserDoesNotExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
@@ -94,7 +116,7 @@ public class UserController {
         System.out.println("some on trying to get info");
         try {
             return ResponseEntity.ok(pService.getUserPath(id));
-        } catch (UserDoeNottExistsException e) {
+        } catch (UserDoesNotExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
@@ -118,7 +140,7 @@ public class UserController {
                 return ResponseEntity.ok("Пользователь был удалён");
             else
                 throw new Exception();
-        } catch (UserDoeNottExistsException e) {
+        } catch (UserDoesNotExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
