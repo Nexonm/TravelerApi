@@ -22,6 +22,8 @@ public class UserEntity {
     private final static String COL_USER_CARDS = "user_cards";
     private final static String COL_USER_FAVORITE_CARDS = "user_favorite_cards";
 
+    public final static long UNDEFINED_ID = -1;
+
 
     //column fields
 
@@ -87,6 +89,31 @@ public class UserEntity {
         this.secondName = secondName;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
+    }
+
+    //for models to save
+    public UserEntity(
+            String firstName,
+            String secondName,
+            String email,
+            String phoneNumber,
+            String socialContacts,
+            String pathToPhoto,
+            String dateOfBirth,
+            boolean isMale,
+            List<CardEntity> userCards,
+            ArrayList<Long> userFavoriteCards
+    ) {
+        this.firstName = firstName;
+        this.secondName = secondName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.socialContacts = socialContacts;
+        this.pathToPhoto = pathToPhoto;
+        this.dateOfBirth = dateOfBirth;
+        this.isMale = isMale;
+        this.userCards = userCards;
+        this.userFavoriteCards = userFavoriteCards;
     }
 
     //full constructor
@@ -231,6 +258,7 @@ public class UserEntity {
     public void setUserCards(CardEntity userCards) {
         if (this.userCards == null)
             this.userCards = new ArrayList<CardEntity>();
+        if (userCards!=null)
         this.userCards.add(userCards);
     }
 

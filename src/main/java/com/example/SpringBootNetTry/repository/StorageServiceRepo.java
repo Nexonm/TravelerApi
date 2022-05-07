@@ -13,6 +13,8 @@ public interface StorageServiceRepo {
 
     String storeUserPhoto(MultipartFile file, long id);
 
+    String storeCardsPhoto(MultipartFile file, long id);
+
     Stream<Path> loadAll();
 
     Path load(String filename);

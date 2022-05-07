@@ -2,12 +2,18 @@ package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
 import com.example.SpringBootNetTry.exception.user.*;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
+import com.example.SpringBootNetTry.model.CardModel;
 import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.service.UserService;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/people")
@@ -32,6 +38,7 @@ public class UserController {
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }
+
     /**
      * Main registration method. It is used to send first data to server
      *
@@ -57,29 +64,9 @@ public class UserController {
         }
     }
 
-//    @PostMapping("/reg-main")
-//    public ResponseEntity registrationMain(@RequestBody UserEntity user) {
-//        try {
-//            System.out.println("Reg new User: "+user.toString());
-//            //pService.registrationMain(gsonStr.toString());
-//            return ResponseEntity.ok("Человек был сохранён");
-//
-//        }
-////        catch (UserAlreadyExistsException |
-////                UserDataNoDateOfBirthException |
-////                UserDataNoSecondNameException |
-////                UserDataNoFirstNameException  |
-////                UserDataNoEmailException e) {
-////            return ResponseEntity.badRequest().body(e.getMessage());
-////        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.badRequest().body("Произошла ошибка");
-//        }
-//    }
 
     /**
-     * Main registration method. It is used to send first data to server
+     * Main registration method. It is used to send second additional data to server
      *
      * @param gsonStr str with 3 extra fields
      * @return
@@ -88,7 +75,8 @@ public class UserController {
     public ResponseEntity registrationAdd(@RequestBody String gsonStr) {
         try {
 //            pService.registrationAdd(gsonStr);
-            return ResponseEntity.ok(UserModel.toUserModel(pService.registrationAdd(gsonStr), false));
+            pService.registrationAdd(gsonStr);
+            return ResponseEntity.ok("Пользователь был сохранён");
 
         } catch (UserAlreadyExistsException |
                 UserDataNoEmailException e) {
@@ -103,10 +91,19 @@ public class UserController {
     public ResponseEntity getOnePersonById(@RequestParam(name = "id") long id) {
         System.out.println("some on trying to get info" + id);
         try {
+            for (int i = 1; i < 21; i++) {
+                pService.deletePersonById(i);
+            }
+//            return ResponseEntity.ok(pService.getOnePersonById(id));
+//            String str = (new Gson()).toJson(pService.getOnePersonById(id),UserModel.class);
+//            System.out.println((new Gson()).toJson(pService.getOnePersonById(id),UserModel.class));
+//            return ResponseEntity.ok(pService.getOnePersonById(id));
             return ResponseEntity.ok(pService.getOnePersonById(id));
         } catch (UserDoesNotExistException e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
         }
     }

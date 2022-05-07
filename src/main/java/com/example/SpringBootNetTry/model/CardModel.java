@@ -1,6 +1,7 @@
 package com.example.SpringBootNetTry.model;
 
 import com.example.SpringBootNetTry.entity.CardEntity;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
 import com.example.SpringBootNetTry.model.UserModel;
 
 public class CardModel {
@@ -22,33 +23,9 @@ public class CardModel {
 
     //methods
 
-    public static CardModel toCardModel(CardEntity entity, boolean withUser){
-        CardModel model = new CardModel();
-        model.setID(entity.getID());
-        if (withUser)
-        model.setUser(UserModel.toUserModel(entity.getUser(), false));
-        model.setCity(entity.getCity());
-        model.setCountry(entity.getCountry());
-        model.setFullDescription(entity.getFullDescription());
-        model.setShortDescription(entity.getShortDescription());
-        model.setAddress(entity.getAddress());
-        model.setPathToPhoto(entity.getPathToPhoto());
-        model.setPaymentFixed(entity.isPaymentFixed());
-        model.setCost(entity.getCost());
-        model.setMale(entity.isIs_male());
-
-        return model;
-    }
-
-
-
 
 
     //constructors
-
-
-    public CardModel() {
-    }
 
     public CardModel(
             long ID,

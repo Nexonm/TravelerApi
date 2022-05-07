@@ -2,6 +2,7 @@ package com.example.SpringBootNetTry.service;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
 import com.example.SpringBootNetTry.exception.user.*;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
 import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.repository.UserRepo;
 import com.google.gson.Gson;
@@ -25,23 +26,32 @@ public class UserService {
     /**
      * Registration method. It is first to register new user.
      * Saves only 5 main fields, as:
-     * String: email
-     * String: password (hash)
-     * String: firstName
-     * String: secondName
-     * long: dateOfBirth (on mobile app required check if user isn't under 18.
-     *
+     * <ul>
+     *     <li>String: email</li>
+     *     <li>String: password</li>
+     *     <li>String: firstName</li>
+     *     <li>String: secondName</li>
+     *     <li>long: dateOfBirth (required check if user isn't under 18)</li>
+     * </ul>
      * @param gsonStr JSON format str
      * @return
      * @throws UserAlreadyExistsException
+     * @throws UserDataNoDateOfBirthException
+     * @throws UserDataNoFirstNameException
+     * @throws UserDataNoSecondNameException
+     * @throws UserDataNoEmailException
+     * @throws UserDataFormatException
      */
     public UserEntity registrationMain(String gsonStr)
             throws UserAlreadyExistsException,
             UserDataNoDateOfBirthException,
             UserDataNoFirstNameException,
             UserDataNoSecondNameException,
-            UserDataNoEmailException {
-        UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
+            UserDataNoEmailException,
+            UserDataFormatException{
+        UserEntity user = UserEntityMapper.toUserEntity(gsonStr);
+        if (user == null) throw new UserDataFormatException();
+
         if (user.getEmail() == null)
             throw new UserDataNoEmailException();
         if (userRepo.existsByEmail(user.getEmail())) {
@@ -49,7 +59,7 @@ public class UserService {
         }
 
         try {
-            //usually it works
+            //usually it works, make hash of password
             String hex = String.format("%064x", new BigInteger(1,
                     MessageDigest.getInstance("SHA3-256").digest(
                             user.getPassword().getBytes(StandardCharsets.UTF_8)
@@ -59,8 +69,8 @@ public class UserService {
             e.printStackTrace();
         }
 
-        user.setUserFavoriteCards(null);
-        user.setUserCards(null);
+        user.setUserFavoriteCards(new ArrayList<>());
+        user.setUserCards(null);//method itself creates new arraylist
         check(user);
         return userRepo.save(user);
     }
@@ -80,16 +90,24 @@ public class UserService {
     /**
      * Registration additional method. It is second to register new user.
      * Sends new fields such as:
-     * String: phoneNumber
-     * String: socialContacts
-     * boolean: isMale
+     * <ul>
+     *     <li>String: phoneNumber</li>
+     *     <li>String: socialContacts</li>
+     *     <li>boolean: isMale</li>
+     * </ul>
      *
      * @param gsonStr JSON format str
      * @return
      * @throws UserAlreadyExistsException
+     * @throws UserDataNoEmailException
+     * @throws UserDataFormatException
      */
-    public UserEntity registrationAdd(String gsonStr) throws UserAlreadyExistsException, UserDataNoEmailException {
+    public UserEntity registrationAdd(String gsonStr)
+            throws UserAlreadyExistsException,
+            UserDataNoEmailException,
+            UserDataFormatException{
         UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
+        if (user == null) throw new UserDataFormatException();
         UserEntity userMain = userRepo.findByEmail(user.getEmail());
         if (userMain == null)
             throw new UserDataNoEmailException();
@@ -101,7 +119,7 @@ public class UserService {
         if (userRepo.findById(id) == null)
             throw new UserDoesNotExistException();
 
-        return UserModel.toUserModel(userRepo.findById(id), true);
+        return UserEntityMapper.toUserModel(userRepo.findById(id), true);
     }
 
     public String getUserPath(long id) throws UserDoesNotExistException {
@@ -115,7 +133,7 @@ public class UserService {
         ArrayList<UserModel> models = new ArrayList<>();
         if ("pass154".equals(adminPassword)) {
             for (UserEntity entity : userRepo.findAll()) {
-                models.add(UserModel.toUserModel(entity, true));
+                models.add(UserEntityMapper.toUserModel(entity, true));
             }
         }
         return models;
