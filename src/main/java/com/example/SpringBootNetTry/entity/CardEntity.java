@@ -10,7 +10,7 @@ public class CardEntity {
 
     //Column names
     private final static String COL_CARD_ID = "card_ID";
-    protected final static String COL_PERSON = "user";
+    protected final static String COL_USER = "user";
     private final static String COL_CITY = "city";
     private final static String COL_COUNTRY = "country";
     private final static String COL_FULL_DESCRIPTION = "full_description";
@@ -36,7 +36,7 @@ public class CardEntity {
     @ManyToOne
     //@JoinColumn(foreignKey = @ForeignKey(name = PersonEntity.COL_PERSON_ID))
     @JoinColumn(name = UserEntity.COL_USER_ID)
-    //@Column(name = COL_PERSON)
+    //@Column(name = COL_USER)
     private UserEntity user;
 
     @Column(name = COL_CITY)
@@ -109,7 +109,7 @@ public class CardEntity {
     @Override
     public String toString() {
         return COL_CARD_ID + ": " + getID() + ", " +
-                COL_PERSON + ": " + getUser() + ", " +
+                COL_USER + ": " + getUser() + ", " +
                 COL_CITY + ": " + getCity() + ", " +
                 COL_COUNTRY + ": " + getCountry() + ", " +
                 COL_FULL_DESCRIPTION + ": " + getFullDescription() + ", " +
