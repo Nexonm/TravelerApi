@@ -61,11 +61,23 @@ public class CardController {
 
     //с помощью аннотации указываем тип запроса и добавляем значение для URL
     @GetMapping("/get")
-    public ResponseEntity geOneCardById(@RequestParam("id") long id) {
+    public ResponseEntity getOneCardById(@RequestParam("id") long id) {
         try {
             System.out.println("someone trying to GET card");
             //model is returned
             String gson = (new Gson()).toJson(cardService.getOneCardById(id));
+            System.out.println(gson);
+            return ResponseEntity.ok(gson);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
+
+    @GetMapping("/get-by-hashtags")
+    public ResponseEntity getCardsByHashtags(@RequestParam("hashtags") String hashtags) {
+        try {
+            //model is returned
+            String gson = (new Gson()).toJson(cardService.getListByHashtag(hashtags));
             System.out.println(gson);
             return ResponseEntity.ok(gson);
         } catch (Exception e) {

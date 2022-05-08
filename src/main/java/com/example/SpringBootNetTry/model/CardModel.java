@@ -19,6 +19,7 @@ public class CardModel {
     private boolean isPaymentFixed;
     private int cost;
     private boolean male;
+    private String hashtag;
 
 
     //methods
@@ -38,7 +39,8 @@ public class CardModel {
             String pathToPhoto,
             boolean isPaymentFixed,
             int cost,
-            boolean male
+            boolean male,
+            String hashtag
     ) {
         this.ID = ID;
         this.user = user;
@@ -51,6 +53,7 @@ public class CardModel {
         this.isPaymentFixed = isPaymentFixed;
         this.cost = cost;
         this.male = male;
+        this.hashtag = hashtag;
     }
 
 
@@ -142,5 +145,13 @@ public class CardModel {
 
     public void setMale(boolean male) {
         this.male = male;
+    }
+
+    public String getHashtag() {
+        return hashtag;
+    }
+
+    public void setHashtag(String hashtag) {
+        this.hashtag = hashtag;
     }
 }

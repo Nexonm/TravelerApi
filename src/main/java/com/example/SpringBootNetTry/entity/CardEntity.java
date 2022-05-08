@@ -5,7 +5,7 @@ import javax.persistence.*;
 //грубо говоря это табличный класс
 //аннотация нужна, чтобы JPA сделал таблицу из класса
 @Entity
-@Table(name = "Cards")
+@Table(name = "cards")
 public class CardEntity {
 
     //Column names
@@ -20,6 +20,7 @@ public class CardEntity {
     private final static String COL_IS_PAYMENT_FIXED = "is_payment_fixed";
     private final static String COL_COST = "cost";
     private final static String COL_IS_MALE = "sex_Is_male";
+    private final static String COL_HASHTAG = "hashtag";
 
 
     //Column fields
@@ -65,6 +66,9 @@ public class CardEntity {
     @Column(name = COL_IS_MALE)
     private boolean male;
 
+    @Column(name = COL_HASHTAG)
+    private String hashtag;
+
 
     //constructors
 
@@ -83,7 +87,8 @@ public class CardEntity {
             String pathToPhoto,
             boolean isPaymentFixed,
             int cost,
-            boolean male
+            boolean male,
+            String hashtag
     ) {
         this.ID = ID;
         this.user = user;
@@ -96,6 +101,7 @@ public class CardEntity {
         this.isPaymentFixed = isPaymentFixed;
         this.cost = cost;
         this.male = male;
+        this.hashtag = hashtag;
     }
 
 
@@ -204,5 +210,13 @@ public class CardEntity {
 
     public void setIs_male(boolean is_male) {
         this.male = is_male;
+    }
+
+    public String getHashtag() {
+        return hashtag;
+    }
+
+    public void setHashtag(String hashtag) {
+        this.hashtag = hashtag;
     }
 }

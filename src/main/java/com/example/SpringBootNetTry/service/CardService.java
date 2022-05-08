@@ -12,6 +12,10 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 //аннотация говорит, что этот класс ответственен за всю логику
 @Service
 public class CardService {
@@ -47,5 +51,23 @@ public class CardService {
         if (cardRepo.findById(id) == null)
             throw new CardDoesNotExistsException();
         return CardEntityMapper.toCardModel(cardRepo.findById(id), true);
+    }
+
+    public ArrayList<Long> getListByHashtag(String hashtags) throws CardDoesNotExistsException{
+        ArrayList<Long> cards = new ArrayList<>();
+        Pattern MY_PATTERN = Pattern.compile("#(\\S+)");
+        Matcher mat = MY_PATTERN.matcher(hashtags);
+        ArrayList<String> strs = new ArrayList<String>();
+        while (mat.find()) {
+            //System.out.println(mat.group(1));
+            strs.add(mat.group(1));
+        }
+        for(CardEntity card : cardRepo.findAll()){
+            for (String hash : strs) {
+                if(card.getHashtag().contains(hash))
+                    cards.add(card.getID());
+            }
+        }
+        return cards;
     }
 }
