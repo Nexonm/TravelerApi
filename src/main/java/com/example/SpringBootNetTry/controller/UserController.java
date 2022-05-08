@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private UserService pService;
 
-    @GetMapping("login")
+    @GetMapping("/login")
     public ResponseEntity loginUser(
             @RequestParam(name = "email") String email,
             @RequestParam(name = "pass") String pass
