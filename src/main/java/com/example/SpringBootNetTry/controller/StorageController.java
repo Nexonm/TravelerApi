@@ -58,6 +58,17 @@ public class StorageController {
 
     }
 
+    @GetMapping(value = "/image-post", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<ByteArrayResource> imagePost(@RequestParam(name = "pid") long id) throws IOException {
+        File file = storageService.getPostPhoto(id);
+        final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentLength(inputStream.contentLength())
+                .body(inputStream);
+
+    }
+
     @Deprecated
     @GetMapping("/get-one-user")
     public ResponseEntity<InputStreamResource> getUserPhoto(@RequestParam(name = "uid") long id) {
@@ -114,6 +125,15 @@ public class StorageController {
     public ResponseEntity getPathToCardPhoto(@RequestParam(name = "cid") long id) {
         try {
             return ResponseEntity.ok(storageService.getCardPhotoTwo(id));
+        } catch (StorageException e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка!!!" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-post-path")
+    public ResponseEntity getPathToPostPhoto(@RequestParam(name = "pid") long id) {
+        try {
+            return ResponseEntity.ok(storageService.getPostPhotoTwo(id));
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body("Произошла ошибка!!!" + e.getMessage());
         }
@@ -181,20 +201,20 @@ public class StorageController {
         return Long.parseLong(str);
     }
 
-//    @PostMapping(path = "/upload-card")
-//    public ResponseEntity uploadCard(
-//            @RequestParam MultipartFile file,
-//            @RequestParam(name = "cid") long id
-//    ) {
-//        try {
-//            String name = storageService.storeCardsPhoto(file, id);
-//            System.out.println("FILE name for cid:" + id + " is " + name);
-//            return ResponseEntity.ok("Файл был сохранён");
-//        } catch (StorageException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
+    @PostMapping(path = "/upload-file-post")
+    public ResponseEntity uploadFilePost(
+            @RequestPart(name = "file") MultipartFile file,
+            @RequestPart(name = "pid") String id
+    ) {
+        try {
 
+            String name = storageService.storePostPhoto(file, getNum(id));
+            System.out.println("FILE name for pid:" + id + " is " + name);
+            return ResponseEntity.ok("Файл был сохранён");
+        } catch (StorageException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 //    @PostMapping("/upload-multiple-files")
 //    @ResponseBody

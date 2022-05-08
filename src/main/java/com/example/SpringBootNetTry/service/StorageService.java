@@ -3,6 +3,7 @@ package com.example.SpringBootNetTry.service;
 import com.example.SpringBootNetTry.exception.storage.FileNotFoundException;
 import com.example.SpringBootNetTry.exception.storage.StorageException;
 import com.example.SpringBootNetTry.repository.CardRepo;
+import com.example.SpringBootNetTry.repository.PostRepo;
 import com.example.SpringBootNetTry.repository.StorageServiceRepo;
 
 import javax.annotation.PostConstruct;
@@ -41,6 +42,8 @@ public class StorageService implements StorageServiceRepo {
     private CardRepo cardRepo;
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private PostRepo postRepo;
 
     @Override
     @PostConstruct
@@ -156,6 +159,59 @@ public class StorageService implements StorageServiceRepo {
     }
 
     /**
+     * Saves Photo to user's directory. This photo is used for user's cards
+     *
+     * @param file file photo png/jpj
+     * @param id   user's id who sent request
+     * @return path to photo starts with main storage directory
+     * @throws StorageException
+     */
+
+    @Override
+    public String storePostPhoto(MultipartFile file, long id) throws StorageException {
+        //clean filepath to assign new filepath
+        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+        //checking
+        if (file.isEmpty()) {
+            throw new StorageException("Failed to store empty file " + filename);
+        }
+        if (filename.contains("..")) {
+            // This is a security check
+            throw new StorageException(
+                    "Cannot store file with relative path outside current directory "
+                            + filename);
+        }
+        //MAIN JOB
+        try {
+            System.out.println("=======Path_Root=======" + rootLocation.toString());
+            InputStream inputStream = file.getInputStream();
+            //create directory for user (main dir for user)
+            if (!existsDirForUserAvatar(postRepo.findById(id).getUser().getID())) {
+                createDirectoryForUserAvatar(postRepo.findById(id).getUser().getID());
+            }
+            //create directory for user cards
+            if (!existsDirForUserPosts(id)) {
+                createDirectoryForUserPosts(id);
+            }
+            //copy file to new directory
+            Files.copy(
+                    inputStream,
+                    Paths.get(getPathToUsersPostsPhoto(id, filename))
+            );
+
+            inputStream.close();
+            System.out.println("===SETTING_PATH_NAME_TO_POST");
+            setPathToCard(id, filename);
+            System.out.println("===SET_PATH_NAME_TO_POST" + postRepo.findById(id).getPathToPhoto());
+        } catch (IOException e) {
+            return "Ошибка";
+        }
+
+
+        return filename;
+    }
+
+    /**
      * Sets path to card and saves changes in DB.
      *
      * @param id       user id
@@ -163,9 +219,22 @@ public class StorageService implements StorageServiceRepo {
      */
     private void setPathToCard(long id, String fileName) {
         //sets path
-        cardRepo.findById(id).setPathToPhoto(getPathToUsersCardsPhoto(id, fileName));
+        cardRepo.findById(id).setPathToPhoto(getPathToUsersPostsPhoto(id, fileName));
         //saves user with changes to DB
         cardRepo.save(cardRepo.findById(id));
+    }
+
+    /**
+     * Sets path to post and saves changes in DB.
+     *
+     * @param id       user id
+     * @param fileName file name
+     */
+    private void setPathToPost(long id, String fileName) {
+        //sets path
+        postRepo.findById(id).setPathToPhoto(getPathToUsersCardsPhoto(id, fileName));
+        //saves user with changes to DB
+        postRepo.save(postRepo.findById(id));
     }
 
     /**
@@ -189,7 +258,7 @@ public class StorageService implements StorageServiceRepo {
      */
     private boolean existsDirForUserCards(long id) {
         return new File(rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\cards").exists() &&
-                new File(rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail()).isDirectory();
+                new File(rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\cards").isDirectory();
     }
 
     /**
@@ -204,8 +273,19 @@ public class StorageService implements StorageServiceRepo {
     }
 
     /**
-     * Creates directory to store user's cards photo
-     * in case there is no directory for user cards
+     * Сhecks if there is directory for user's post's photo
+     *
+     * @param id user id to get it's email
+     * @return true if dir exists
+     */
+    private boolean existsDirForUserPosts(long id) {
+        return new File(rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\posts").exists() &&
+                new File(rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\posts").isDirectory();
+    }
+
+    /**
+     * Creates directory to store user's post's photo
+     * in case there is no directory for user posts
      *
      * @param id user id to get it's email
      * @return Path to dir
@@ -214,6 +294,19 @@ public class StorageService implements StorageServiceRepo {
     private Path createDirectoryForUserCards(long id) throws IOException {
         //creates directory for cards
         return Files.createDirectory(Paths.get(rootLocation.toString() + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\cards"));
+    }
+
+    /**
+     * Creates directory to store user's cards photo
+     * in case there is no directory for user cards
+     *
+     * @param id user id to get it's email
+     * @return Path to dir
+     * @throws IOException
+     */
+    private Path createDirectoryForUserPosts(long id) throws IOException {
+        //creates directory for cards
+        return Files.createDirectory(Paths.get(rootLocation.toString() + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\posts"));
     }
 
     /**
@@ -284,6 +377,22 @@ public class StorageService implements StorageServiceRepo {
     }
 
     /**
+     * Gets post photo when it's necessary
+     *
+     * @param id user's id
+     * @return post's photo as File jpg/png
+     */
+    public File getPostPhoto(long id) {
+        System.out.println("===PATH_NAME_TO_USER" + postRepo.findById(id).getPathToPhoto());
+        File file = new File(postRepo.findById(id).getPathToPhoto());
+        if (file.isDirectory()) {
+            return null;
+        }
+        System.out.println("===file.size" + file.getName());
+        return file;
+    }
+
+    /**
      * Gets user photo when it's necessary
      *
      * @param id user's id
@@ -307,6 +416,18 @@ public class StorageService implements StorageServiceRepo {
      */
     public String getCardPhotoTwo(long id) {
         File file = new File(cardRepo.findById(id).getPathToPhoto());
+        String str = file.getAbsolutePath();
+        return str;
+    }
+
+    /**
+     * Gets path to post's photo from DB
+     *
+     * @param id user's id
+     * @return path to photo
+     */
+    public String getPostPhotoTwo(long id) {
+        File file = new File(postRepo.findById(id).getPathToPhoto());
         String str = file.getAbsolutePath();
         return str;
     }
@@ -343,5 +464,15 @@ public class StorageService implements StorageServiceRepo {
         return (rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\cards\\" + fileName);
     }
 
+    /**
+     * Combines all in one path to user's card's photo
+     *
+     * @param id       user's id
+     * @param fileName file name
+     * @return
+     */
+    private String getPathToUsersPostsPhoto(long id, String fileName) {
+        return (rootLocation + "\\" + cardRepo.findById(id).getUser().getEmail() + "\\posts\\" + fileName);
+    }
 
 }
