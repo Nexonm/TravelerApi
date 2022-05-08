@@ -118,7 +118,8 @@ public class CardEntity {
                 COL_PATH_TO_PHOTO + ": " + getPathToPhoto() + ", " +
                 COL_IS_PAYMENT_FIXED + ": " + isPaymentFixed() + ", " +
                 COL_COST + ": " + getCost() + ", " +
-                COL_IS_MALE + ": " + isIs_male();
+                COL_IS_MALE + ": " + isIs_male() + ", " +
+                COL_HASHTAG + ": " + getHashtag();
     }
 
 
