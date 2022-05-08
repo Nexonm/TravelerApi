@@ -23,6 +23,21 @@ public class UserController {
     @Autowired
     private UserService pService;
 
+    @GetMapping("login")
+    public ResponseEntity loginUser(
+            @RequestParam(name = "email") String email,
+            @RequestParam(name = "pass") String pass
+    ) {
+        try{
+            return ResponseEntity.ok((new Gson()).toJson(pService.login(email, pass)));
+        }catch (UserDoesNotExistException | UserIncorrectPasswordException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
+
     @Deprecated
     @PostMapping("/add/gson")
     public ResponseEntity makeUser(@RequestBody String gsonStr) {
@@ -48,14 +63,14 @@ public class UserController {
     @PostMapping("/reg-main")
     public ResponseEntity registrationMain(@RequestBody String gsonStr) {
         try {
-            System.out.println("Reg new User: "+gsonStr.toString());
+            System.out.println("Reg new User: " + gsonStr.toString());
             pService.registrationMain(gsonStr.toString());
             return ResponseEntity.ok("Человек был сохранён");
 
         } catch (UserAlreadyExistsException |
                 UserDataNoDateOfBirthException |
                 UserDataNoSecondNameException |
-                UserDataNoFirstNameException  |
+                UserDataNoFirstNameException |
                 UserDataNoEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -98,7 +113,7 @@ public class UserController {
 //            String str = (new Gson()).toJson(pService.getOnePersonById(id),UserModel.class);
 //            System.out.println((new Gson()).toJson(pService.getOnePersonById(id),UserModel.class));
 //            return ResponseEntity.ok(pService.getOnePersonById(id));
-            return ResponseEntity.ok(pService.getOnePersonById(id));
+            return ResponseEntity.ok((new Gson()).toJson(pService.getOnePersonById(id)));
         } catch (UserDoesNotExistException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());

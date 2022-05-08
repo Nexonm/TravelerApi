@@ -24,6 +24,34 @@ public class UserService {
     private StorageService storageService;
 
     /**
+     * Tries to log user in. In case user is logged in, sends all data about user.
+     * In case there in no user or his data is wrong exception is thrown.
+     * @param email user account email
+     * @param pass user account password
+     * @return
+     * @throws UserDoesNotExistException
+     * @throws UserIncorrectPasswordException
+     */
+    public UserModel login(String email, String pass)
+            throws UserDoesNotExistException,
+            UserIncorrectPasswordException{
+        if (!userRepo.existsByEmail(email))
+            throw new UserDoesNotExistException();
+        UserEntity user = userRepo.findByEmail(email);
+        try{
+            String hex = String.format("%064x", new BigInteger(1,
+                    MessageDigest.getInstance("SHA3-256").digest(
+                            pass.getBytes(StandardCharsets.UTF_8)
+                    )));
+            if (user.getPassword().equals(hex)) return UserEntityMapper.toUserModel(user, true);
+            else throw new UserIncorrectPasswordException();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Registration method. It is first to register new user.
      * Saves only 5 main fields, as:
      * <ul>
