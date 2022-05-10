@@ -167,10 +167,10 @@ public class StorageController {
     @PostMapping(path = "/upload-file-user")
     public ResponseEntity uploadFileUser(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(name = "uid") long id
+            @RequestParam(name = "uid") String id
     ) {
         try {
-            String name = storageService.storeUserPhoto(file, id);
+            String name = storageService.storeUserPhoto(file, getNum(id));
             System.out.println("FILE name for uid:" + id + " is " + name);
 //        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
 //                .path("/download/")
