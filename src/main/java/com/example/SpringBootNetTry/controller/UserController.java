@@ -106,9 +106,9 @@ public class UserController {
     public ResponseEntity getOnePersonById(@RequestParam(name = "id") long id) {
         System.out.println("some on trying to get info" + id);
         try {
-            for (int i = 1; i < 21; i++) {
-                pService.deletePersonById(i);
-            }
+//            for (int i = 1; i < 21; i++) {
+//                pService.deletePersonById(i);
+//            }
 //            return ResponseEntity.ok(pService.getOnePersonById(id));
 //            String str = (new Gson()).toJson(pService.getOnePersonById(id),UserModel.class);
 //            System.out.println((new Gson()).toJson(pService.getOnePersonById(id),UserModel.class));
