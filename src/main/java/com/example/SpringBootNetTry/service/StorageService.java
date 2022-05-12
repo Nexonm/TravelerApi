@@ -219,7 +219,7 @@ public class StorageService implements StorageServiceRepo {
      */
     private void setPathToCard(long id, String fileName) {
         //sets path
-        cardRepo.findById(id).setPathToPhoto(getPathToUsersPostsPhoto(id, fileName));
+        cardRepo.findById(id).setPathToPhoto(getPathToUsersCardsPhoto(id, fileName));
         //saves user with changes to DB
         cardRepo.save(cardRepo.findById(id));
     }
