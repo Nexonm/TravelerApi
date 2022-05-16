@@ -70,7 +70,7 @@ public class UserService {
      * @throws UserDataNoEmailException
      * @throws UserDataFormatException
      */
-    public UserEntity registrationMain(String gsonStr)
+    public UserModel registrationMain(String gsonStr)
             throws UserAlreadyExistsException,
             UserDataNoDateOfBirthException,
             UserDataNoFirstNameException,
@@ -100,7 +100,8 @@ public class UserService {
         user.setUserFavoriteCards(new ArrayList<>());
         user.setUserCards(null);//method itself creates new arraylist
         check(user);
-        return userRepo.save(user);
+        long id = userRepo.save(user).getID();
+        return UserEntityMapper.toUserModel(userRepo.findById(id), true);
     }
 
     private void check(UserEntity entity)
