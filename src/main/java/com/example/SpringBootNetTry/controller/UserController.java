@@ -64,7 +64,7 @@ public class UserController {
     public ResponseEntity registrationMain(@RequestBody String gsonStr) {
         try {
             System.out.println("Reg new User: " + gsonStr.toString());
-            return ResponseEntity.ok(pService.registrationMain(gsonStr.toString()));
+            return ResponseEntity.ok((new Gson()).toJson(pService.registrationMain(gsonStr.toString())));
 
         } catch (UserAlreadyExistsException |
                 UserDataNoDateOfBirthException |
