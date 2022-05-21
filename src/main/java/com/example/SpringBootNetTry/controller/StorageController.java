@@ -1,6 +1,8 @@
 package com.example.SpringBootNetTry.controller;
 
+import com.example.SpringBootNetTry.exception.card.CardDoesNotExistsException;
 import com.example.SpringBootNetTry.exception.storage.StorageException;
+import com.example.SpringBootNetTry.service.CardService;
 import com.example.SpringBootNetTry.service.StorageService;
 import jdk.internal.loader.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,8 @@ public class StorageController {
 
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private CardService cardService;
 
 
     @GetMapping(value = "/image-user", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -191,7 +195,9 @@ public class StorageController {
 
             String name = storageService.storeCardsPhoto(file, getNum(id));
             System.out.println("FILE name for cid:" + id + " is " + name);
-            return ResponseEntity.ok("Файл был сохранён");
+            return ResponseEntity.ok(cardService.getOneCardById(getNum(id)));
+        } catch (CardDoesNotExistsException exi){
+            return ResponseEntity.badRequest().body(exi.getMessage());
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

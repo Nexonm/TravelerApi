@@ -68,17 +68,18 @@ public class StorageService implements StorageServiceRepo {
     @Override
     public String storeUserPhoto(MultipartFile file, long id) throws StorageException {
         //clean filepath to assign new filepath
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
-        //checking
-        if (file.isEmpty()) {
-            throw new StorageException("Failed to store empty file " + filename);
-        }
-        if (filename.contains("..")) {
-            // This is a security check
-            throw new StorageException(
-                    "Cannot store file with relative path outside current directory "
-                            + filename);
-        }
+//        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+//        //checking
+//        if (file.isEmpty()) {
+//            throw new StorageException("Failed to store empty file " + filename);
+//        }
+//        if (filename.contains("..")) {
+//            // This is a security check
+//            throw new StorageException(
+//                    "Cannot store file with relative path outside current directory "
+//                            + filename);
+//        }
+        String filename = genName();
         //MAIN JOB
         try {
             //System.out.println("=======Path=======" + rootLocation.toString());
@@ -117,18 +118,19 @@ public class StorageService implements StorageServiceRepo {
     @Override
     public String storeCardsPhoto(MultipartFile file, long id) throws StorageException {
         //clean filepath to assign new filepath
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
-        //checking
-        if (file.isEmpty()) {
-            throw new StorageException("Failed to store empty file " + filename);
-        }
-        if (filename.contains("..")) {
-            // This is a security check
-            throw new StorageException(
-                    "Cannot store file with relative path outside current directory "
-                            + filename);
-        }
+//        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+//        //checking
+//        if (file.isEmpty()) {
+//            throw new StorageException("Failed to store empty file " + filename);
+//        }
+//        if (filename.contains("..")) {
+//            // This is a security check
+//            throw new StorageException(
+//                    "Cannot store file with relative path outside current directory "
+//                            + filename);
+//        }
         //MAIN JOB
+        String filename = genName();
         try {
             System.out.println("=======Path_Root=======" + rootLocation.toString());
             InputStream inputStream = file.getInputStream();
@@ -170,18 +172,19 @@ public class StorageService implements StorageServiceRepo {
     @Override
     public String storePostPhoto(MultipartFile file, long id) throws StorageException {
         //clean filepath to assign new filepath
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
-        //checking
-        if (file.isEmpty()) {
-            throw new StorageException("Failed to store empty file " + filename);
-        }
-        if (filename.contains("..")) {
-            // This is a security check
-            throw new StorageException(
-                    "Cannot store file with relative path outside current directory "
-                            + filename);
-        }
+//        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+//        //checking
+//        if (file.isEmpty()) {
+//            throw new StorageException("Failed to store empty file " + filename);
+//        }
+//        if (filename.contains("..")) {
+//            // This is a security check
+//            throw new StorageException(
+//                    "Cannot store file with relative path outside current directory "
+//                            + filename);
+//        }
         //MAIN JOB
+        String filename = genName();
         try {
             System.out.println("=======Path_Root=======" + rootLocation.toString());
             InputStream inputStream = file.getInputStream();
@@ -440,6 +443,19 @@ public class StorageService implements StorageServiceRepo {
      */
     public String getUserPhotoTwo(long id) {
         return userRepo.findById(id).getPathToPhoto();
+    }
+
+    /**
+     * method generate new name for file in order to store in correctly
+     * @return file name from random 10 chars
+     */
+    private String genName() {
+        int range = ('z' - 'a') + 1;
+        StringBuilder builder = new StringBuilder("");
+        for (int i = 0; i < 10; i++) {
+            builder.append((char)(((int)(Math.random() * range)) + 'a'));
+        }
+        return builder.toString();
     }
 
     /**
