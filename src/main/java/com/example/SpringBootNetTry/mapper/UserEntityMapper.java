@@ -36,18 +36,20 @@ public class UserEntityMapper {
                 user.getDateOfBirth() + "",
                 user.isMale(),
                 (new Gson()).toJson(models) + "",
-                (user.getUserFavoriteCards()!=null)? //check if userFavoriteCards are null
-                        (new Gson()).toJson(user.getUserFavoriteCards()) + "":
-                        (new Gson()).toJson(new ArrayList<Long>()) + ""
+                (user.getUserFavoriteCards() != null) ? //check if userFavoriteCards are null
+                        (new Gson()).toJson(user.getUserFavoriteCards()) + "" :
+                        (new Gson()).toJson(new ArrayList<Long>()) + "",
+                user.getInterests() + "",
+                user.getCharacteristics() + ""
         );
     }
 
-    public static UserEntity toUserEntity(String strGson){
+    public static UserEntity toUserEntity(String strGson) {
         try {
-            UserEntity model = new Gson().fromJson(strGson, UserEntity.class);
+            UserEntity entity = new Gson().fromJson(strGson, UserEntity.class);
 
-            return model;
-        }catch (Exception e){
+            return entity;
+        } catch (Exception e) {
             return null;
         }
 

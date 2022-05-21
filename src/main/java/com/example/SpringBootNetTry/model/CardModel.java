@@ -16,9 +16,6 @@ public class CardModel {
     private String shortDescription;
     private String address;
     private String pathToPhoto;
-    private boolean isPaymentFixed;
-    private int cost;
-    private boolean male;
     private String hashtag;
 
 
@@ -37,9 +34,6 @@ public class CardModel {
             String shortDescription,
             String address,
             String pathToPhoto,
-            boolean isPaymentFixed,
-            int cost,
-            boolean male,
             String hashtag
     ) {
         this.ID = ID;
@@ -50,9 +44,6 @@ public class CardModel {
         this.shortDescription = shortDescription;
         this.address = address;
         this.pathToPhoto = pathToPhoto;
-        this.isPaymentFixed = isPaymentFixed;
-        this.cost = cost;
-        this.male = male;
         this.hashtag = hashtag;
     }
 
@@ -121,30 +112,6 @@ public class CardModel {
 
     public void setPathToPhoto(String pathToPhoto) {
         this.pathToPhoto = pathToPhoto;
-    }
-
-    public boolean isPaymentFixed() {
-        return isPaymentFixed;
-    }
-
-    public void setPaymentFixed(boolean paymentFixed) {
-        isPaymentFixed = paymentFixed;
-    }
-
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public boolean isMale() {
-        return male;
-    }
-
-    public void setMale(boolean male) {
-        this.male = male;
     }
 
     public String getHashtag() {

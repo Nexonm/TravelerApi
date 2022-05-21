@@ -15,9 +15,6 @@ public class CardEntityMapper {
                 card.getShortDescription() + "",
                 card.getAddress() + "",
                 card.getPathToPhoto() + "",
-                card.isPaymentFixed(),
-                card.getCost() +0,
-                card.isIs_male(),
                 card.getHashtag()
                 );
     }

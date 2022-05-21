@@ -17,9 +17,6 @@ public class CardEntity {
     private final static String COL_SHORT_DESCRIPTION = "short_description";
     private final static String COL_ADDRESS = "address";
     private final static String COL_PATH_TO_PHOTO = "path_to_photo";
-    private final static String COL_IS_PAYMENT_FIXED = "is_payment_fixed";
-    private final static String COL_COST = "cost";
-    private final static String COL_IS_MALE = "sex_Is_male";
     private final static String COL_HASHTAG = "hashtag";
 
 
@@ -57,15 +54,6 @@ public class CardEntity {
     @Column(name = COL_PATH_TO_PHOTO)
     private String pathToPhoto;//later we will have photos
 
-    @Column(name = COL_IS_PAYMENT_FIXED)
-    private boolean isPaymentFixed;
-
-    @Column(name = COL_COST)
-    private int cost;
-
-    @Column(name = COL_IS_MALE)
-    private boolean male;
-
     @Column(name = COL_HASHTAG)
     private String hashtag;
 
@@ -85,9 +73,6 @@ public class CardEntity {
             String shortDescription,
             String address,
             String pathToPhoto,
-            boolean isPaymentFixed,
-            int cost,
-            boolean male,
             String hashtag
     ) {
         this.ID = ID;
@@ -98,9 +83,6 @@ public class CardEntity {
         this.shortDescription = shortDescription;
         this.address = address;
         this.pathToPhoto = pathToPhoto;
-        this.isPaymentFixed = isPaymentFixed;
-        this.cost = cost;
-        this.male = male;
         this.hashtag = hashtag;
     }
 
@@ -116,9 +98,6 @@ public class CardEntity {
                 COL_SHORT_DESCRIPTION + ": " + getShortDescription() + ", " +
                 COL_ADDRESS + ": " + getAddress() + ", " +
                 COL_PATH_TO_PHOTO + ": " + getPathToPhoto() + ", " +
-                COL_IS_PAYMENT_FIXED + ": " + isPaymentFixed() + ", " +
-                COL_COST + ": " + getCost() + ", " +
-                COL_IS_MALE + ": " + isIs_male() + ", " +
                 COL_HASHTAG + ": " + getHashtag();
     }
 
@@ -187,30 +166,6 @@ public class CardEntity {
 
     public void setPathToPhoto(String pathToPhoto) {
         this.pathToPhoto = pathToPhoto;
-    }
-
-    public boolean isPaymentFixed() {
-        return isPaymentFixed;
-    }
-
-    public void setPaymentFixed(boolean paymentFixed) {
-        isPaymentFixed = paymentFixed;
-    }
-
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public boolean isIs_male() {
-        return male;
-    }
-
-    public void setIs_male(boolean is_male) {
-        this.male = is_male;
     }
 
     public String getHashtag() {

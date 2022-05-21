@@ -23,6 +23,8 @@ public class UserModel {
     private boolean male;
     private String userCards;
     private String userFavoriteCards;
+    private String interests;
+    private String characteristics;
 
     //constructors
 
@@ -37,7 +39,9 @@ public class UserModel {
             String dateOfBirth,
             boolean male,
             String userCards,
-            String userFavoriteCards
+            String userFavoriteCards,
+            String interests,
+            String characteristics
     ) {
         this.ID = ID;
         this.firstName = firstName;
@@ -50,6 +54,8 @@ public class UserModel {
         this.male = male;
         this.userCards = userCards;
         this.userFavoriteCards = userFavoriteCards;
+        this.interests = interests;
+        this.characteristics = characteristics;
     }
 
 
@@ -132,7 +138,7 @@ public class UserModel {
         return userCards;
     }
 
-    public void setUserCards(String userCards){
+    public void setUserCards(String userCards) {
         this.userCards = userCards;
     }
 
@@ -150,11 +156,27 @@ public class UserModel {
         return userFavoriteCards;
     }
 
-    public void setUserFavoriteCards(String userFavoriteCards){
+    public void setUserFavoriteCards(String userFavoriteCards) {
         this.userFavoriteCards = userFavoriteCards;
     }
 
     public void setUserFavoriteCards(ArrayList<Long> userFavoriteCards) {
         this.userFavoriteCards = (new Gson()).toJson(userFavoriteCards);
+    }
+
+    public String getInterests() {
+        return interests;
+    }
+
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
+
+    public String getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
     }
 }

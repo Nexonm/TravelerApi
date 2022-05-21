@@ -21,6 +21,8 @@ public class UserEntity {
     private final static String COL_IS_MALE = "Sex_Is_male";
     private final static String COL_USER_CARDS = "user_cards";
     private final static String COL_USER_FAVORITE_CARDS = "user_favorite_cards";
+    private final static String COL_INTERESTS = "interests";
+    private final static String COL_CHARACTERISTICS = "characteristics";
 
     public final static long UNDEFINED_ID = -1;
 
@@ -55,6 +57,12 @@ public class UserEntity {
 
     @Column(name = COL_DATE_OF_BIRTH)
     private String dateOfBirth;
+
+    @Column(name = COL_INTERESTS)
+    private String interests;
+
+    @Column(name = COL_CHARACTERISTICS)
+    private String characteristics;
 
     @Column(name = COL_IS_MALE)
     private boolean isMale;
@@ -126,6 +134,8 @@ public class UserEntity {
             String socialContacts,
             String pathToPhoto,
             String dateOfBirth,
+            String interests,
+            String characteristics,
             boolean isMale,
             List<CardEntity> userCards,
             ArrayList<Long> userFavoriteCards
@@ -138,6 +148,8 @@ public class UserEntity {
         this.socialContacts = socialContacts;
         this.pathToPhoto = pathToPhoto;
         this.dateOfBirth = dateOfBirth;
+        this.interests = interests;
+        this.characteristics = characteristics;
         this.isMale = isMale;
         this.userCards = userCards;
         this.userFavoriteCards = userFavoriteCards;
@@ -162,9 +174,9 @@ public class UserEntity {
 
     //methods
 
-    public void combine(UserEntity aUser){
-        if (this.phoneNumber==null) this.setPhoneNumber(aUser.phoneNumber);
-        if (this.socialContacts==null) this.setSocialContacts(aUser.socialContacts);
+    public void combine(UserEntity aUser) {
+        if (this.phoneNumber == null) this.setPhoneNumber(aUser.phoneNumber);
+        if (this.socialContacts == null) this.setSocialContacts(aUser.socialContacts);
         this.setMale(aUser.isMale);
     }
 
@@ -258,8 +270,8 @@ public class UserEntity {
     public void setUserCards(CardEntity userCards) {
         if (this.userCards == null)
             this.userCards = new ArrayList<CardEntity>();
-        if (userCards!=null)
-        this.userCards.add(userCards);
+        if (userCards != null)
+            this.userCards.add(userCards);
     }
 
     public ArrayList<Long> getUserFavoriteCards() {
@@ -270,4 +282,19 @@ public class UserEntity {
         this.userFavoriteCards = userFavoriteCards;
     }
 
+    public String getInterests() {
+        return interests;
+    }
+
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
+
+    public String getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
+    }
 }
