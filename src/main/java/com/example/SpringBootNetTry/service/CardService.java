@@ -64,7 +64,23 @@ public class CardService {
         CardEntity[] cardsArr = cardRepo.findByCity(city);
         //empty arrayList as container for answer
         ArrayList<Long> cards = new ArrayList<>();
-        System.out.println("*****CardARR***** size is " + cardsArr.length);
+        //fill arrayList
+        for (CardEntity card : cardsArr)
+            cards.add(card.getID());
+        //return answer
+        return cards;
+    }
+
+    /**
+     * Finds all cards by country, uses ignoreCase
+     * @param country name of country
+     * @return list with card's ids
+     */
+    public ArrayList<Long> getListByCountry(String country) {
+        //get all cards by country, uses ignoreCase
+        CardEntity[] cardsArr = cardRepo.findByCountry(country);
+        //empty arrayList as container for answer
+        ArrayList<Long> cards = new ArrayList<>();
         //fill arrayList
         for (CardEntity card : cardsArr)
             cards.add(card.getID());

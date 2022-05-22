@@ -7,4 +7,6 @@ public interface CardRepo extends CrudRepository<CardEntity, Long> {
     CardEntity findById(long id);
 
     CardEntity[] findByCity(String city);
+
+    CardEntity[] findByCountry(String country);
 }
