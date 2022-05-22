@@ -23,6 +23,12 @@ public class UserController {
     @Autowired
     private UserService pService;
 
+    /**
+     * Method calls when user enters mobile app.
+     * @param email user email as login
+     * @param pass user password for email
+     * @return userModel as JSON str
+     */
     @GetMapping("/login")
     public ResponseEntity loginUser(
             @RequestParam(name = "email") String email,

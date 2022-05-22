@@ -28,7 +28,7 @@ public class UserService {
      * In case there in no user or his data is wrong exception is thrown.
      * @param email user account email
      * @param pass user account password
-     * @return
+     * @return user model representation
      * @throws UserDoesNotExistException
      * @throws UserIncorrectPasswordException
      */
