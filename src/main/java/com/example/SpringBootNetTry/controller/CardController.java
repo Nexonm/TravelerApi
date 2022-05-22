@@ -144,4 +144,28 @@ public class CardController {
         }
     }
 
+
+    /**
+     * Method returns data sorting three params:
+     * <ul>
+     *     <li>Country</li>
+     *     <li>City</li>
+     *     <li>Hashtags</li>
+     * </ul>
+     * If there is matching in some of cards they will be returned.
+     * @param str string containing some valuable string
+     * @return array list with ids of cards
+     */
+    @GetMapping("/get-by-str")
+    public ResponseEntity getCardsSorted(@RequestParam("str") String str) {
+        try {
+            //model is returned
+            String gson = (new Gson()).toJson(cardService.getListThreeSorted(str));
+            System.out.println(gson);
+            return ResponseEntity.ok(gson);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
+
 }

@@ -12,8 +12,7 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +51,19 @@ public class CardService {
         if (cardRepo.findById(id) == null)
             throw new CardDoesNotExistsException();
         return CardEntityMapper.toCardModel(cardRepo.findById(id), true);
+    }
+
+    /**
+     * Finds all cards by str from server
+     * @param str some str
+     * @return list with card's ids
+     */
+    public ArrayList<Long> getListThreeSorted(String str){
+        Set<Long> set = new HashSet<>();
+        set.addAll(getListByCity(str));
+        set.addAll(getListByCountry(str));
+        set.addAll(getListByHashtag(str));
+        return new ArrayList<>(set);
     }
 
     /**
