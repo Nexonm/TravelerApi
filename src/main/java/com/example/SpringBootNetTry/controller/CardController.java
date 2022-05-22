@@ -105,4 +105,23 @@ public class CardController {
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }
+
+    /**
+     * Method returns data sorting by city. If there is matching in card,
+     * it will be returned.
+     * f.e. for string "London" will be returned all cards that have such city.
+     * @param city string containing city
+     * @return array list with ids of cards
+     */
+    @GetMapping("/get-by-city")
+    public ResponseEntity getCardsByCity(@RequestParam("city") String city) {
+        try {
+            //model is returned
+            String gson = (new Gson()).toJson(cardService.getListByCity(city));
+            System.out.println(gson);
+            return ResponseEntity.ok(gson);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
 }
