@@ -124,4 +124,24 @@ public class CardController {
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }
+
+    /**
+     * Method returns data sorting by country. If there is matching in card,
+     * it will be returned.
+     * f.e. for string "Russia" will be returned all cards that have such country.
+     * @param country string containing country name
+     * @return array list with ids of cards
+     */
+    @GetMapping("/get-by-country")
+    public ResponseEntity getCardsByCountry(@RequestParam("country") String country) {
+        try {
+            //model is returned
+            String gson = (new Gson()).toJson(cardService.getListByCountry(country));
+            System.out.println(gson);
+            return ResponseEntity.ok(gson);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
+
 }
