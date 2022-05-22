@@ -28,11 +28,11 @@ public class UserController {
             @RequestParam(name = "email") String email,
             @RequestParam(name = "pass") String pass
     ) {
-        try{
+        try {
             return ResponseEntity.ok((new Gson()).toJson(pService.login(email, pass)));
-        }catch (UserDoesNotExistException | UserIncorrectPasswordException e){
+        } catch (UserDoesNotExistException | UserIncorrectPasswordException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Произошла ошибка");
         }
@@ -78,7 +78,6 @@ public class UserController {
         }
     }
 
-
     /**
      * Main registration method. It is used to send second additional data to server
      *
@@ -103,33 +102,14 @@ public class UserController {
 
     @GetMapping("/get")
     public ResponseEntity getOnePersonById(@RequestParam(name = "id") long id) {
-        System.out.println("some on trying to get info" + id);
+//        System.out.println("some on trying to get info" + id);
         try {
-//            for (int i = 1; i < 21; i++) {
-//                pService.deletePersonById(i);
-//            }
-//            return ResponseEntity.ok(pService.getOnePersonById(id));
-//            String str = (new Gson()).toJson(pService.getOnePersonById(id),UserModel.class);
-//            System.out.println((new Gson()).toJson(pService.getOnePersonById(id),UserModel.class));
-//            return ResponseEntity.ok(pService.getOnePersonById(id));
             return ResponseEntity.ok((new Gson()).toJson(pService.getOnePersonById(id)));
         } catch (UserDoesNotExistException e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
-        }
-    }
-
-    @GetMapping("/get-path")
-    public ResponseEntity getUserPath(@RequestParam(name = "id") long id) {
-        System.out.println("some on trying to get info");
-        try {
-            return ResponseEntity.ok(pService.getUserPath(id));
-        } catch (UserDoesNotExistException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
         }
     }
@@ -158,4 +138,26 @@ public class UserController {
         }
     }
 
+    /**
+     * Add card id to user.favoriteCards.
+     * @param uid user id
+     * @param cid card id
+     * @return user.favoriteCards array list as JSON str
+     */
+    @GetMapping("/add-to-favs")
+    public ResponseEntity addCardToUserFavorite(
+            @RequestParam(name = "uid") long uid,
+            @RequestParam(name = "cid") long cid
+    ) {
+        try{
+
+            return ResponseEntity.ok(
+                    (new Gson()).toJson(pService.addOneCardToFavorite(uid, cid))
+            );
+        }catch (UserDoesNotExistException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
+        }
+    }
 }
