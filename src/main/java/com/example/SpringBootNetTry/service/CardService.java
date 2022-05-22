@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +26,7 @@ public class CardService {
     @Autowired
     private UserRepo userRepo;
 
-    public CardModel makeCard( String gsonStr, long personId) throws UserDoesNotExistException{
+    public CardModel makeCard(String gsonStr, long personId) throws UserDoesNotExistException {
         CardEntity card = (new Gson()).fromJson(gsonStr, CardEntity.class);
         UserEntity person = userRepo.findById(personId);
         if (person == null) throw new UserDoesNotExistException();
@@ -39,7 +40,7 @@ public class CardService {
     }
 
     @Deprecated
-    public CardEntity makeCard( CardEntity card) {
+    public CardEntity makeCard(CardEntity card) {
 
         cardRepo.save(card);
         //TODO Сделать проверку на полную идентичность карт
@@ -53,21 +54,29 @@ public class CardService {
         return CardEntityMapper.toCardModel(cardRepo.findById(id), true);
     }
 
-    public ArrayList<Long> getListByHashtag(String hashtags) throws CardDoesNotExistsException{
+    /**
+     * Finds all cards that contain some hashtags.
+     *
+     * @param hashtags str with all hashtags
+     * @return list with card's ids
+     */
+    public ArrayList<Long> getListByHashtag(String hashtags) {
+        //initialize all storages needed for search
         ArrayList<Long> cards = new ArrayList<>();
-        Pattern MY_PATTERN = Pattern.compile("#(\\S+)");
-        Matcher mat = MY_PATTERN.matcher(hashtags);
-        ArrayList<String> strs = new ArrayList<String>();
-        while (mat.find()) {
-            //System.out.println(mat.group(1));
-            strs.add(mat.group(1));
-        }
-        for(CardEntity card : cardRepo.findAll()){
+        ArrayList<String> strs = new ArrayList<>(Arrays.asList(hashtags.split("#")));
+        //as String.split() is used check and delete empty lines
+        if (strs.get(0).equals("")) strs.remove(0);
+
+        //searching from hashtags
+        for (CardEntity card : cardRepo.findAll()) {
             for (String hash : strs) {
-                if(card.getHashtag().contains(hash))
+                if (card.getHashtag().toLowerCase().contains(hash.toLowerCase())) {
                     cards.add(card.getID());
+                    break; //in way if card contains more than one needed hashtag
+                }
             }
         }
+        //return list with all cards
         return cards;
     }
 }
