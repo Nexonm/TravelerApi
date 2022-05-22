@@ -5,4 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CardRepo extends CrudRepository<CardEntity, Long> {
     CardEntity findById(long id);
+
+    CardEntity[] findByCity(String city);
 }

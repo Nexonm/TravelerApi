@@ -55,6 +55,24 @@ public class CardService {
     }
 
     /**
+     * Finds all cards by city, uses ignoreCase
+     * @param city name of city
+     * @return list with card's ids
+     */
+    public ArrayList<Long> getListByCity(String city) {
+        //get all cards by city, uses ignoreCase
+        CardEntity[] cardsArr = cardRepo.findByCity(city);
+        //empty arrayList as container for answer
+        ArrayList<Long> cards = new ArrayList<>();
+        System.out.println("*****CardARR***** size is " + cardsArr.length);
+        //fill arrayList
+        for (CardEntity card : cardsArr)
+            cards.add(card.getID());
+        //return answer
+        return cards;
+    }
+
+    /**
      * Finds all cards that contain some hashtags.
      *
      * @param hashtags str with all hashtags
