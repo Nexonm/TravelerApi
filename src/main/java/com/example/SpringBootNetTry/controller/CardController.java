@@ -26,6 +26,13 @@ public class CardController {
     @Autowired
     private CardService cardService;
 
+    /**
+     * Main method to create new card. Data sends as a JSON string.
+     * For understanding which user created card we need user ID (uid)
+     * @param gsonStr card in JSON format
+     * @param id user ID
+     * @return json card str
+     */
     @PostMapping("/add/gson")
     public ResponseEntity makeCard(
             @RequestBody String gsonStr,
@@ -59,7 +66,14 @@ public class CardController {
         }
     }
 
+
     //с помощью аннотации указываем тип запроса и добавляем значение для URL
+
+    /**
+     * Main GET method. Needs card id to return card
+     * @param id card id
+     * @return JSON card str
+     */
     @GetMapping("/get")
     public ResponseEntity getOneCardById(@RequestParam("id") long id) {
         try {
@@ -73,6 +87,13 @@ public class CardController {
         }
     }
 
+    /**
+     * Method returns data sorting by hashtags. If there is matching in card,
+     * it will be returned.
+     * f.e. for string "#Italy#sport" will be returned all cards that have such hashtags.
+     * @param hashtags string containing hashtags
+     * @return array list with ids of cards
+     */
     @GetMapping("/get-by-hashtags")
     public ResponseEntity getCardsByHashtags(@RequestParam("hashtags") String hashtags) {
         try {
