@@ -151,13 +151,6 @@ public class UserService {
         return UserEntityMapper.toUserModel(userRepo.findById(id), true);
     }
 
-    public String getUserPath(long id) throws UserDoesNotExistException {
-        if (userRepo.findById(id) == null)
-            throw new UserDoesNotExistException();
-
-        return userRepo.findById(id).getPathToPhoto();
-    }
-
     public ArrayList<UserModel> getAll(String adminPassword) {
         ArrayList<UserModel> models = new ArrayList<>();
         if ("pass154".equals(adminPassword)) {
@@ -175,6 +168,22 @@ public class UserService {
         userRepo.deleteById(id);
         return true;
 
+    }
+
+    /**
+     * Add card id to user.favoriteCards.
+     * @param uid user id
+     * @param cid card id
+     * @return array list from user
+     * @throws UserDoesNotExistException
+     */
+    public ArrayList<Long> addOneCardToFavorite(long uid, long cid) throws UserDoesNotExistException{
+        if (userRepo.findById(uid) == null)
+            throw new UserDoesNotExistException();
+        UserEntity entity = userRepo.findById(uid);
+        entity.getUserFavoriteCards().add(cid);
+        userRepo.save(entity);
+        return entity.getUserFavoriteCards();
     }
 
 }
