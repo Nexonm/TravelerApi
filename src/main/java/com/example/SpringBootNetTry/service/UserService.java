@@ -181,8 +181,10 @@ public class UserService {
         if (userRepo.findById(uid) == null)
             throw new UserDoesNotExistException();
         UserEntity entity = userRepo.findById(uid);
-        entity.getUserFavoriteCards().add(cid);
-        userRepo.save(entity);
+        if(!entity.getUserFavoriteCards().contains(cid)) {
+            entity.getUserFavoriteCards().add(cid);
+            userRepo.save(entity);
+        }
         return entity.getUserFavoriteCards();
     }
 
