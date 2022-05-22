@@ -2,8 +2,12 @@ package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.exception.card.CardDoesNotExistsException;
 import com.example.SpringBootNetTry.exception.storage.StorageException;
+import com.example.SpringBootNetTry.exception.user.UserDoesNotExistException;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
 import com.example.SpringBootNetTry.service.CardService;
 import com.example.SpringBootNetTry.service.StorageService;
+import com.example.SpringBootNetTry.service.UserService;
+import com.google.gson.Gson;
 import jdk.internal.loader.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -38,6 +42,8 @@ public class StorageController {
     private StorageService storageService;
     @Autowired
     private CardService cardService;
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping(value = "/image-user", produces = MediaType.IMAGE_JPEG_VALUE)
@@ -180,8 +186,14 @@ public class StorageController {
 //                .path("/download/")
 //                .path(name)
 //                .toUriString();
-            return ResponseEntity.ok("Файл был сохранён");
-        } catch (StorageException e) {
+            return ResponseEntity.ok(
+                    (new Gson()).toJson(
+                            userService.getOnePersonById(getNum(id))
+                    )
+            );
+        }catch (UserDoesNotExistException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (StorageException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -196,7 +208,7 @@ public class StorageController {
             String name = storageService.storeCardsPhoto(file, getNum(id));
             System.out.println("FILE name for cid:" + id + " is " + name);
             return ResponseEntity.ok(cardService.getOneCardById(getNum(id)));
-        } catch (CardDoesNotExistsException exi){
+        } catch (CardDoesNotExistsException exi) {
             return ResponseEntity.badRequest().body(exi.getMessage());
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
