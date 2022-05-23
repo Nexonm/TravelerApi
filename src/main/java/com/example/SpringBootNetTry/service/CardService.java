@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.smartcardio.Card;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,13 +75,20 @@ public class CardService {
     public ArrayList<Long> getListByCity(String city) {
         //get all cards by city, uses ignoreCase
         CardEntity[] cardsArr = cardRepo.findByCity(city);
+        CardEntity[] cardsArr1 = cardRepo.findByCity(city+" ");
         //empty arrayList as container for answer
         ArrayList<Long> cards = new ArrayList<>();
+        ArrayList<Long> cards1 = new ArrayList<>();
         //fill arrayList
         for (CardEntity card : cardsArr)
             cards.add(card.getID());
+        for (CardEntity card : cardsArr1)
+            cards1.add(card.getID());
+        Set<Long> set = new HashSet<>();
+        set.addAll(cards);
+        set.addAll(cards1);
         //return answer
-        return cards;
+        return new ArrayList<>(set);
     }
 
     /**
@@ -91,13 +99,20 @@ public class CardService {
     public ArrayList<Long> getListByCountry(String country) {
         //get all cards by country, uses ignoreCase
         CardEntity[] cardsArr = cardRepo.findByCountry(country);
+        CardEntity[] cardsArr1 = cardRepo.findByCity(country+" ");
         //empty arrayList as container for answer
         ArrayList<Long> cards = new ArrayList<>();
+        ArrayList<Long> cards1 = new ArrayList<>();
         //fill arrayList
         for (CardEntity card : cardsArr)
             cards.add(card.getID());
+        for (CardEntity card : cardsArr1)
+            cards1.add(card.getID());
+        Set<Long> set = new HashSet<>();
+        set.addAll(cards);
+        set.addAll(cards1);
         //return answer
-        return cards;
+        return new ArrayList<>(set);
     }
 
     /**
