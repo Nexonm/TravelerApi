@@ -157,7 +157,7 @@ public class CardController {
      * @return array list with ids of cards
      */
     @GetMapping("/get-by-str")
-    public ResponseEntity getCardsSorted(@RequestParam("str") String str) {
+    public ResponseEntity getCardsSorted(@RequestBody String str) {
         try {
             //model is returned
             String gson = (new Gson()).toJson(cardService.getListThreeSorted(str));
