@@ -161,7 +161,7 @@ public class CardController {
         try {
             //model is returned
             String gson = (new Gson()).toJson(cardService.getListThreeSorted(str));
-            System.out.println(gson);
+            System.out.println("********STR*********="+str);
             return ResponseEntity.ok(gson);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка");
