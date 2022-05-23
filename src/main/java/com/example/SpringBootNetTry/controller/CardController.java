@@ -156,7 +156,7 @@ public class CardController {
      * @param str string containing some valuable string
      * @return array list with ids of cards
      */
-    @GetMapping("/get-by-str")
+    @PostMapping("/get-by-str")
     public ResponseEntity getCardsSorted(@RequestBody String str) {
         try {
             //model is returned
