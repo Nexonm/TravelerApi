@@ -2,8 +2,13 @@ package com.example.SpringBootNetTry.model;
 
 import com.example.SpringBootNetTry.entity.CardEntity;
 import com.example.SpringBootNetTry.entity.UserEntity;
+import com.example.SpringBootNetTry.mapper.CardEntityMapper;
+import com.google.gson.Gson;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class UserModel {
@@ -16,44 +21,14 @@ public class UserModel {
     private String pathToPhoto;
     private String dateOfBirth;
     private boolean male;
-    private List<CardModel> userCards;
-    private ArrayList<Long> userFavoriteCards;
-
-
-    //methods
-
-    //main method
-
-    /***
-     *This method returns representation model of entity
-     * it hides some fields and gives only allowed information
-     * @param entity user entity from database
-     * @param withCards true -> show user's cards, false -> hide user's cards
-     * @return representation model of userEntity
-     */
-    public static UserModel toUserModel(UserEntity entity, boolean withCards) {
-        UserModel model = new UserModel();
-        model.setID(entity.getID());
-        model.setFirstName(entity.getFirstName());
-        model.setSecondName(entity.getSecondName());
-        model.setEmail(entity.getEmail());
-        model.setPhoneNumber(entity.getPhoneNumber());
-        model.setSocialContacts(entity.getSocialContacts());
-        model.setPathToPhoto(entity.getPathToPhoto());
-        model.setDateOfBirth(entity.getDateOfBirth());
-        model.setMale(entity.isMale());
-        model.setUserCards(entity.getUserCards(), withCards);
-
-        return model;
-    }
-
+    private String userCards;
+    private String userFavoriteCards;
+    private String interests;
+    private String characteristics;
 
     //constructors
 
-    public UserModel() {
-    }
-
-    private UserModel(
+    public UserModel(
             long ID,
             String firstName,
             String secondName,
@@ -63,7 +38,10 @@ public class UserModel {
             String pathToPhoto,
             String dateOfBirth,
             boolean male,
-            ArrayList<Long> userFavoriteCards
+            String userCards,
+            String userFavoriteCards,
+            String interests,
+            String characteristics
     ) {
         this.ID = ID;
         this.firstName = firstName;
@@ -74,7 +52,10 @@ public class UserModel {
         this.pathToPhoto = pathToPhoto;
         this.dateOfBirth = dateOfBirth;
         this.male = male;
+        this.userCards = userCards;
         this.userFavoriteCards = userFavoriteCards;
+        this.interests = interests;
+        this.characteristics = characteristics;
     }
 
 
@@ -153,24 +134,49 @@ public class UserModel {
         this.male = male;
     }
 
-    public List<CardModel> getUserCards() {
+    public String getUserCards() {
         return userCards;
     }
 
-    public void setUserCards(List<CardEntity> userCards, boolean withCards) {
-        this.userCards = new ArrayList<>();
-        if (withCards) {
-            for (CardEntity entity : userCards) {
-                this.userCards.add(CardModel.toCardModel(entity, false));
-            }
-        }
+    public void setUserCards(String userCards) {
+        this.userCards = userCards;
     }
 
-    public ArrayList<Long> getUserFavoriteCards() {
+    public void setUserCards(List<CardEntity> userCards, boolean withCards) {
+        ArrayList<CardModel> models = new ArrayList<>();
+        if (withCards) {
+            for (CardEntity entity : userCards) {
+                models.add(CardEntityMapper.toCardModel(entity, false));
+            }
+        }
+        this.userCards = (new Gson()).toJson(models);
+    }
+
+    public String getUserFavoriteCards() {
         return userFavoriteCards;
     }
 
-    public void setUserFavoriteCards(ArrayList<Long> userFavoriteCards) {
+    public void setUserFavoriteCards(String userFavoriteCards) {
         this.userFavoriteCards = userFavoriteCards;
+    }
+
+    public void setUserFavoriteCards(ArrayList<Long> userFavoriteCards) {
+        this.userFavoriteCards = (new Gson()).toJson(userFavoriteCards);
+    }
+
+    public String getInterests() {
+        return interests;
+    }
+
+    public void setInterests(String interests) {
+        this.interests = interests;
+    }
+
+    public String getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
     }
 }

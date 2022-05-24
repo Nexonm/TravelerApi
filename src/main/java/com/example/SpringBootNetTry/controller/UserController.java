@@ -1,19 +1,19 @@
 package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
-import com.example.SpringBootNetTry.exception.user.UserAlreadyExistsException;
-import com.example.SpringBootNetTry.exception.user.UserDoeNottExistsException;
+import com.example.SpringBootNetTry.exception.user.*;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
+import com.example.SpringBootNetTry.model.CardModel;
 import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.service.UserService;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.PostUpdate;
-import javax.servlet.annotation.MultipartConfig;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/people")
@@ -22,6 +22,27 @@ public class UserController {
 
     @Autowired
     private UserService pService;
+
+    /**
+     * Method calls when user enters mobile app.
+     * @param email user email as login
+     * @param pass user password for email
+     * @return userModel as JSON str
+     */
+    @GetMapping("/login")
+    public ResponseEntity loginUser(
+            @RequestParam(name = "email") String email,
+            @RequestParam(name = "pass") String pass
+    ) {
+        try {
+            return ResponseEntity.ok((new Gson()).toJson(pService.login(email, pass)));
+        } catch (UserDoesNotExistException | UserIncorrectPasswordException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Произошла ошибка");
+        }
+    }
 
     @Deprecated
     @PostMapping("/add/gson")
@@ -39,7 +60,8 @@ public class UserController {
         }
     }
 
-    /** Main registration method. It is used to send first data to server
+    /**
+     * Main registration method. It is used to send first data to server
      *
      * @param gsonStr str with 5 main fields
      * @return
@@ -47,10 +69,14 @@ public class UserController {
     @PostMapping("/reg-main")
     public ResponseEntity registrationMain(@RequestBody String gsonStr) {
         try {
-            pService.registrationMain(gsonStr);
-            return ResponseEntity.ok("Человек был сохранён");
+            System.out.println("Reg new User: " + gsonStr.toString());
+            return ResponseEntity.ok((new Gson()).toJson(pService.registrationMain(gsonStr.toString())));
 
-        } catch (UserAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException |
+                UserDataNoDateOfBirthException |
+                UserDataNoSecondNameException |
+                UserDataNoFirstNameException |
+                UserDataNoEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,13 +84,21 @@ public class UserController {
         }
     }
 
+    /**
+     * Main registration method. It is used to send second additional data to server
+     *
+     * @param gsonStr str with 3 extra fields
+     * @return
+     */
     @PostMapping("/reg-add")
     public ResponseEntity registrationAdd(@RequestBody String gsonStr) {
         try {
 //            pService.registrationAdd(gsonStr);
-            return ResponseEntity.ok(UserModel.toUserModel(pService.registrationAdd(gsonStr), false));
+            pService.registrationAdd(gsonStr);
+            return ResponseEntity.ok("Пользователь был сохранён");
 
-        } catch (UserAlreadyExistsException e) {
+        } catch (UserAlreadyExistsException |
+                UserDataNoEmailException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,24 +108,14 @@ public class UserController {
 
     @GetMapping("/get")
     public ResponseEntity getOnePersonById(@RequestParam(name = "id") long id) {
-        System.out.println("some on trying to get info" + id);
+//        System.out.println("some on trying to get info" + id);
         try {
-            return ResponseEntity.ok(pService.getOnePersonById(id));
-        } catch (UserDoeNottExistsException e) {
+            return ResponseEntity.ok((new Gson()).toJson(pService.getOnePersonById(id)));
+        } catch (UserDoesNotExistException e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
-        }
-    }
-
-    @GetMapping("/get-path")
-    public ResponseEntity getUserPath(@RequestParam(name = "id") long id) {
-        System.out.println("some on trying to get info");
-        try {
-            return ResponseEntity.ok(pService.getUserPath(id));
-        } catch (UserDoeNottExistsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
         }
     }
@@ -113,11 +137,33 @@ public class UserController {
                 return ResponseEntity.ok("Пользователь был удалён");
             else
                 throw new Exception();
-        } catch (UserDoeNottExistsException e) {
+        } catch (UserDoesNotExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
         }
     }
 
+    /**
+     * Add card id to user.favoriteCards.
+     * @param uid user id
+     * @param cid card id
+     * @return user.favoriteCards array list as JSON str
+     */
+    @GetMapping("/add-to-favs")
+    public ResponseEntity addCardToUserFavorite(
+            @RequestParam(name = "uid") long uid,
+            @RequestParam(name = "cid") long cid
+    ) {
+        try{
+
+            return ResponseEntity.ok(
+                    (new Gson()).toJson(pService.addOneCardToFavorite(uid, cid))
+            );
+        }catch (UserDoesNotExistException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
+        }
+    }
 }

@@ -1,9 +1,9 @@
 package com.example.SpringBootNetTry.exception.user;
 
-public class UserDoeNottExistsException extends Exception{
+public class UserDoesNotExistException extends Exception{
     private static final String message = "Пользователя не существует";
 
-    public UserDoeNottExistsException(){
+    public UserDoesNotExistException(){
         super(message);
     }
 }

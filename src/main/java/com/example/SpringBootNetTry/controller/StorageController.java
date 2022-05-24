@@ -1,7 +1,13 @@
 package com.example.SpringBootNetTry.controller;
 
+import com.example.SpringBootNetTry.exception.card.CardDoesNotExistsException;
 import com.example.SpringBootNetTry.exception.storage.StorageException;
+import com.example.SpringBootNetTry.exception.user.UserDoesNotExistException;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
+import com.example.SpringBootNetTry.service.CardService;
 import com.example.SpringBootNetTry.service.StorageService;
+import com.example.SpringBootNetTry.service.UserService;
+import com.google.gson.Gson;
 import jdk.internal.loader.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +40,14 @@ public class StorageController {
 
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private CardService cardService;
+    @Autowired
+    private UserService userService;
 
 
-    @GetMapping(value = "/image", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<ByteArrayResource> image(@RequestParam(name = "uid") long id) throws IOException {
+    @GetMapping(value = "/image-user", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<ByteArrayResource> imageUser(@RequestParam(name = "uid") long id) throws IOException {
         File file = storageService.getUserPhoto(id);
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(file.toPath()));
         return ResponseEntity
@@ -46,7 +57,30 @@ public class StorageController {
 
     }
 
-    @GetMapping("/get-one")
+    @GetMapping(value = "/image-card", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<ByteArrayResource> imageCard(@RequestParam(name = "cid") long id) throws IOException {
+        File file = storageService.getCardPhoto(id);
+        final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentLength(inputStream.contentLength())
+                .body(inputStream);
+
+    }
+
+    @GetMapping(value = "/image-post", produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<ByteArrayResource> imagePost(@RequestParam(name = "pid") long id) throws IOException {
+        File file = storageService.getPostPhoto(id);
+        final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .contentLength(inputStream.contentLength())
+                .body(inputStream);
+
+    }
+
+    @Deprecated
+    @GetMapping("/get-one-user")
     public ResponseEntity<InputStreamResource> getUserPhoto(@RequestParam(name = "uid") long id) {
         try {
             File file = storageService.getUserPhoto(id);
@@ -60,18 +94,56 @@ public class StorageController {
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(resource);
         } catch (FileNotFoundException e) {
-
+            return null;
         } catch (StorageException e) {
             return null;
         }
-        return null;
     }
 
-    @GetMapping("/get-one-two")
-    public ResponseEntity get(@RequestParam(name = "uid") long id) {
+    @Deprecated
+    @GetMapping("/get-one-card")
+    public ResponseEntity<InputStreamResource> getCardPhoto(@RequestParam(name = "cid") long id) {
+        try {
+            File file = storageService.getCardPhoto(id);
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("some", "some");
+            System.out.println("===HERE_WE_GO===");
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(file.length())
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (StorageException e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/get-user-path")
+    public ResponseEntity getPathToUsrPhoto(@RequestParam(name = "uid") long id) {
         try {
 
             return ResponseEntity.ok(storageService.getUserPhotoTwo(id));
+        } catch (StorageException e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка!!!" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-card-path")
+    public ResponseEntity getPathToCardPhoto(@RequestParam(name = "cid") long id) {
+        try {
+            return ResponseEntity.ok(storageService.getCardPhotoTwo(id));
+        } catch (StorageException e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка!!!" + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get-post-path")
+    public ResponseEntity getPathToPostPhoto(@RequestParam(name = "pid") long id) {
+        try {
+            return ResponseEntity.ok(storageService.getPostPhotoTwo(id));
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body("Произошла ошибка!!!" + e.getMessage());
         }
@@ -102,19 +174,60 @@ public class StorageController {
 //                .body(resource);
 //    }
 
-    @PostMapping("/upload-file")
-    @ResponseBody
-    public ResponseEntity uploadFile(
+    @PostMapping(path = "/upload-file-user")
+    public ResponseEntity uploadFileUser(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(name = "uid") long id
+            @RequestParam(name = "uid") String id
     ) {
         try {
-            String name = storageService.storeUserPhoto(file, id);
-
+            String name = storageService.storeUserPhoto(file, getNum(id));
+            System.out.println("FILE name for uid:" + id + " is " + name);
 //        String uri = ServletUriComponentsBuilder.fromCurrentContextPath()
 //                .path("/download/")
 //                .path(name)
 //                .toUriString();
+            return ResponseEntity.ok(
+                    (new Gson()).toJson(
+                            userService.getOnePersonById(getNum(id))
+                    )
+            );
+        }catch (UserDoesNotExistException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (StorageException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping(path = "/upload-file-card")
+    public ResponseEntity uploadFileCard(
+            @RequestPart(name = "file") MultipartFile file,
+            @RequestPart(name = "cid") String id
+    ) {
+        try {
+
+            String name = storageService.storeCardsPhoto(file, getNum(id));
+            System.out.println("FILE name for cid:" + id + " is " + name);
+            return ResponseEntity.ok(cardService.getOneCardById(getNum(id)));
+        } catch (CardDoesNotExistsException exi) {
+            return ResponseEntity.badRequest().body(exi.getMessage());
+        } catch (StorageException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private long getNum(String str) {
+        return Long.parseLong(str);
+    }
+
+    @PostMapping(path = "/upload-file-post")
+    public ResponseEntity uploadFilePost(
+            @RequestPart(name = "file") MultipartFile file,
+            @RequestPart(name = "pid") String id
+    ) {
+        try {
+
+            String name = storageService.storePostPhoto(file, getNum(id));
+            System.out.println("FILE name for pid:" + id + " is " + name);
             return ResponseEntity.ok("Файл был сохранён");
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

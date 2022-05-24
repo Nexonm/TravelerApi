@@ -1,22 +1,19 @@
 package com.example.SpringBootNetTry.service;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
-import com.example.SpringBootNetTry.exception.user.UserAlreadyExistsException;
-import com.example.SpringBootNetTry.exception.user.UserDoeNottExistsException;
+import com.example.SpringBootNetTry.exception.user.*;
+import com.example.SpringBootNetTry.mapper.UserEntityMapper;
 import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.repository.UserRepo;
 import com.google.gson.Gson;
-import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Locale;
 
 @Service
 public class UserService {
@@ -26,86 +23,169 @@ public class UserService {
     @Autowired
     private StorageService storageService;
 
-    /** Registration method. It is first to register new user.
+    /**
+     * Tries to log user in. In case user is logged in, sends all data about user.
+     * In case there in no user or his data is wrong exception is thrown.
+     * @param email user account email
+     * @param pass user account password
+     * @return user model representation
+     * @throws UserDoesNotExistException
+     * @throws UserIncorrectPasswordException
+     */
+    public UserModel login(String email, String pass)
+            throws UserDoesNotExistException,
+            UserIncorrectPasswordException{
+        if (!userRepo.existsByEmail(email))
+            throw new UserDoesNotExistException();
+        UserEntity user = userRepo.findByEmail(email);
+        try{
+            String hex = String.format("%064x", new BigInteger(1,
+                    MessageDigest.getInstance("SHA3-256").digest(
+                            pass.getBytes(StandardCharsets.UTF_8)
+                    )));
+            if (user.getPassword().equals(hex)) return UserEntityMapper.toUserModel(user, true);
+            else throw new UserIncorrectPasswordException();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Registration method. It is first to register new user.
      * Saves only 5 main fields, as:
-     *  String: email
-     *  String: password (hash)
-     *  String: firstName
-     *  String: secondName
-     *  long: dateOfBirth (on mobile app required check if user isn't under 18.
+     * <ul>
+     *     <li>String: email</li>
+     *     <li>String: password</li>
+     *     <li>String: firstName</li>
+     *     <li>String: secondName</li>
+     *     <li>long: dateOfBirth (required check if user isn't under 18)</li>
+     * </ul>
      * @param gsonStr JSON format str
      * @return
      * @throws UserAlreadyExistsException
+     * @throws UserDataNoDateOfBirthException
+     * @throws UserDataNoFirstNameException
+     * @throws UserDataNoSecondNameException
+     * @throws UserDataNoEmailException
+     * @throws UserDataFormatException
      */
-    public UserEntity registrationMain(String gsonStr) throws UserAlreadyExistsException {
-        UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
+    public UserModel registrationMain(String gsonStr)
+            throws UserAlreadyExistsException,
+            UserDataNoDateOfBirthException,
+            UserDataNoFirstNameException,
+            UserDataNoSecondNameException,
+            UserDataNoEmailException,
+            UserDataFormatException{
+        UserEntity user = UserEntityMapper.toUserEntity(gsonStr);
+        if (user == null) throw new UserDataFormatException();
+
+        if (user.getEmail() == null)
+            throw new UserDataNoEmailException();
         if (userRepo.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExistsException();
         }
 
         try {
-            //usually it works
+            //usually it works, make hash of password
             String hex = String.format("%064x", new BigInteger(1,
                     MessageDigest.getInstance("SHA3-256").digest(
                             user.getPassword().getBytes(StandardCharsets.UTF_8)
                     )));
             user.setPassword(hex);
-        }catch (NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
 
-        user.setUserFavoriteCards(null);
-        user.setUserCards(null);
-        return userRepo.save(user);
+        user.setUserFavoriteCards(new ArrayList<>());
+        user.setUserCards(null);//method itself creates new arraylist
+        check(user);
+        long id = userRepo.save(user).getID();
+        return UserEntityMapper.toUserModel(userRepo.findById(id), true);
     }
 
-    /** Registration additional method. It is second to register new user.
-     *  Sends new fields such as:
-     *  String: phoneNumber
-     *  String: socialContacts
-     *  boolean: isMale
+    private void check(UserEntity entity)
+            throws UserDataNoDateOfBirthException,
+            UserDataNoFirstNameException,
+            UserDataNoSecondNameException {
+        if (entity.getDateOfBirth() == null)
+            throw new UserDataNoDateOfBirthException();
+        if (entity.getFirstName() == null)
+            throw new UserDataNoFirstNameException();
+        if (entity.getSecondName() == null)
+            throw new UserDataNoSecondNameException();
+    }
+
+    /**
+     * Registration additional method. It is second to register new user.
+     * Sends new fields such as:
+     * <ul>
+     *     <li>String: phoneNumber</li>
+     *     <li>String: socialContacts</li>
+     *     <li>boolean: isMale</li>
+     * </ul>
+     *
      * @param gsonStr JSON format str
      * @return
      * @throws UserAlreadyExistsException
+     * @throws UserDataNoEmailException
+     * @throws UserDataFormatException
      */
-    public UserEntity registrationAdd(String gsonStr) throws UserAlreadyExistsException {
+    public UserEntity registrationAdd(String gsonStr)
+            throws UserAlreadyExistsException,
+            UserDataNoEmailException,
+            UserDataFormatException{
         UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
+        if (user == null) throw new UserDataFormatException();
         UserEntity userMain = userRepo.findByEmail(user.getEmail());
+        if (userMain == null)
+            throw new UserDataNoEmailException();
         userMain.combine(user);
-        return userRepo.save(user);
+        return userRepo.save(userMain);
     }
 
-    public UserModel getOnePersonById(long id) throws UserDoeNottExistsException {
+    public UserModel getOnePersonById(long id) throws UserDoesNotExistException {
         if (userRepo.findById(id) == null)
-            throw new UserDoeNottExistsException();
+            throw new UserDoesNotExistException();
 
-        return UserModel.toUserModel(userRepo.findById(id), true);
-    }
-
-    public String getUserPath(long id) throws UserDoeNottExistsException {
-        if (userRepo.findById(id) == null)
-            throw new UserDoeNottExistsException();
-
-        return userRepo.findById(id).getPathToPhoto();
+        return UserEntityMapper.toUserModel(userRepo.findById(id), true);
     }
 
     public ArrayList<UserModel> getAll(String adminPassword) {
         ArrayList<UserModel> models = new ArrayList<>();
-        if ("pass154".equals(adminPassword)){
+        if ("pass154".equals(adminPassword)) {
             for (UserEntity entity : userRepo.findAll()) {
-                models.add(UserModel.toUserModel(entity, true));
+                models.add(UserEntityMapper.toUserModel(entity, true));
             }
         }
         return models;
     }
 
-    public boolean deletePersonById(long id) throws UserDoeNottExistsException {
+    public boolean deletePersonById(long id) throws UserDoesNotExistException {
         if (userRepo.findById(id) == null)
-            throw new UserDoeNottExistsException();
+            throw new UserDoesNotExistException();
 
         userRepo.deleteById(id);
         return true;
 
+    }
+
+    /**
+     * Add card id to user.favoriteCards.
+     * @param uid user id
+     * @param cid card id
+     * @return array list from user
+     * @throws UserDoesNotExistException
+     */
+    public ArrayList<Long> addOneCardToFavorite(long uid, long cid) throws UserDoesNotExistException{
+        if (userRepo.findById(uid) == null)
+            throw new UserDoesNotExistException();
+        UserEntity entity = userRepo.findById(uid);
+        if(!entity.getUserFavoriteCards().contains(cid)) {
+            entity.getUserFavoriteCards().add(cid);
+            userRepo.save(entity);
+        }
+        return entity.getUserFavoriteCards();
     }
 
 }

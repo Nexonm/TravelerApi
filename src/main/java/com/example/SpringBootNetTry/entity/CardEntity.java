@@ -5,21 +5,19 @@ import javax.persistence.*;
 //грубо говоря это табличный класс
 //аннотация нужна, чтобы JPA сделал таблицу из класса
 @Entity
-@Table(name = "Cards")
+@Table(name = "cards")
 public class CardEntity {
 
     //Column names
     private final static String COL_CARD_ID = "card_ID";
-    protected final static String COL_PERSON = "user";
+    protected final static String COL_USER = "user";
     private final static String COL_CITY = "city";
     private final static String COL_COUNTRY = "country";
     private final static String COL_FULL_DESCRIPTION = "full_description";
     private final static String COL_SHORT_DESCRIPTION = "short_description";
     private final static String COL_ADDRESS = "address";
     private final static String COL_PATH_TO_PHOTO = "path_to_photo";
-    private final static String COL_IS_PAYMENT_FIXED = "is_payment_fixed";
-    private final static String COL_COST = "cost";
-    private final static String COL_IS_MALE = "sex_Is_male";
+    private final static String COL_HASHTAG = "hashtag";
 
 
     //Column fields
@@ -35,7 +33,7 @@ public class CardEntity {
     @ManyToOne
     //@JoinColumn(foreignKey = @ForeignKey(name = PersonEntity.COL_PERSON_ID))
     @JoinColumn(name = UserEntity.COL_USER_ID)
-    //@Column(name = COL_PERSON)
+    //@Column(name = COL_USER)
     private UserEntity user;
 
     @Column(name = COL_CITY)
@@ -56,14 +54,8 @@ public class CardEntity {
     @Column(name = COL_PATH_TO_PHOTO)
     private String pathToPhoto;//later we will have photos
 
-    @Column(name = COL_IS_PAYMENT_FIXED)
-    private boolean isPaymentFixed;
-
-    @Column(name = COL_COST)
-    private int cost;
-
-    @Column(name = COL_IS_MALE)
-    private boolean male;
+    @Column(name = COL_HASHTAG)
+    private String hashtag;
 
 
     //constructors
@@ -81,9 +73,7 @@ public class CardEntity {
             String shortDescription,
             String address,
             String pathToPhoto,
-            boolean isPaymentFixed,
-            int cost,
-            boolean male
+            String hashtag
     ) {
         this.ID = ID;
         this.user = user;
@@ -93,9 +83,7 @@ public class CardEntity {
         this.shortDescription = shortDescription;
         this.address = address;
         this.pathToPhoto = pathToPhoto;
-        this.isPaymentFixed = isPaymentFixed;
-        this.cost = cost;
-        this.male = male;
+        this.hashtag = hashtag;
     }
 
 
@@ -103,16 +91,14 @@ public class CardEntity {
     @Override
     public String toString() {
         return COL_CARD_ID + ": " + getID() + ", " +
-                COL_PERSON + ": " + getUser() + ", " +
+                COL_USER + ": " + getUser() + ", " +
                 COL_CITY + ": " + getCity() + ", " +
                 COL_COUNTRY + ": " + getCountry() + ", " +
                 COL_FULL_DESCRIPTION + ": " + getFullDescription() + ", " +
                 COL_SHORT_DESCRIPTION + ": " + getShortDescription() + ", " +
                 COL_ADDRESS + ": " + getAddress() + ", " +
                 COL_PATH_TO_PHOTO + ": " + getPathToPhoto() + ", " +
-                COL_IS_PAYMENT_FIXED + ": " + isPaymentFixed() + ", " +
-                COL_COST + ": " + getCost() + ", " +
-                COL_IS_MALE + ": " + isIs_male();
+                COL_HASHTAG + ": " + getHashtag();
     }
 
 
@@ -182,27 +168,11 @@ public class CardEntity {
         this.pathToPhoto = pathToPhoto;
     }
 
-    public boolean isPaymentFixed() {
-        return isPaymentFixed;
+    public String getHashtag() {
+        return hashtag;
     }
 
-    public void setPaymentFixed(boolean paymentFixed) {
-        isPaymentFixed = paymentFixed;
-    }
-
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
-    public boolean isIs_male() {
-        return male;
-    }
-
-    public void setIs_male(boolean is_male) {
-        this.male = is_male;
+    public void setHashtag(String hashtag) {
+        this.hashtag = hashtag;
     }
 }
