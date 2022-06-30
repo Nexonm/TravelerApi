@@ -26,19 +26,20 @@ public class UserService {
     /**
      * Tries to log user in. In case user is logged in, sends all data about user.
      * In case there in no user or his data is wrong exception is thrown.
+     *
      * @param email user account email
-     * @param pass user account password
+     * @param pass  user account password
      * @return user model representation
      * @throws UserDoesNotExistException
      * @throws UserIncorrectPasswordException
      */
     public UserModel login(String email, String pass)
             throws UserDoesNotExistException,
-            UserIncorrectPasswordException{
+            UserIncorrectPasswordException {
         if (!userRepo.existsByEmail(email))
             throw new UserDoesNotExistException();
         UserEntity user = userRepo.findByEmail(email);
-        try{
+        try {
             String hex = String.format("%064x", new BigInteger(1,
                     MessageDigest.getInstance("SHA3-256").digest(
                             pass.getBytes(StandardCharsets.UTF_8)
@@ -61,6 +62,7 @@ public class UserService {
      *     <li>String: secondName</li>
      *     <li>long: dateOfBirth (required check if user isn't under 18)</li>
      * </ul>
+     *
      * @param gsonStr JSON format str
      * @return
      * @throws UserAlreadyExistsException
@@ -76,7 +78,7 @@ public class UserService {
             UserDataNoFirstNameException,
             UserDataNoSecondNameException,
             UserDataNoEmailException,
-            UserDataFormatException{
+            UserDataFormatException {
         UserEntity user = UserEntityMapper.toUserEntity(gsonStr);
         if (user == null) throw new UserDataFormatException();
 
@@ -134,7 +136,7 @@ public class UserService {
     public UserEntity registrationAdd(String gsonStr)
             throws UserAlreadyExistsException,
             UserDataNoEmailException,
-            UserDataFormatException{
+            UserDataFormatException {
         UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
         if (user == null) throw new UserDataFormatException();
         UserEntity userMain = userRepo.findByEmail(user.getEmail());
@@ -172,20 +174,66 @@ public class UserService {
 
     /**
      * Add card id to user.favoriteCards.
+     *
      * @param uid user id
      * @param cid card id
      * @return array list from user
      * @throws UserDoesNotExistException
      */
-    public ArrayList<Long> addOneCardToFavorite(long uid, long cid) throws UserDoesNotExistException{
+    public ArrayList<Long> addOneCardToFavorite(long uid, long cid) throws UserDoesNotExistException {
         if (userRepo.findById(uid) == null)
             throw new UserDoesNotExistException();
         UserEntity entity = userRepo.findById(uid);
-        if(!entity.getUserFavoriteCards().contains(cid)) {
+        if (!entity.getUserFavoriteCards().contains(cid)) {
             entity.getUserFavoriteCards().add(cid);
             userRepo.save(entity);
         }
         return entity.getUserFavoriteCards();
     }
 
+    /**
+     * Changes user.socialContacts and user.phone if there were changes.
+     * @param gsonStr user object as json string
+     * @return user model ready to send
+     * @throws UserDoesNotExistException in case there is no user was found
+     */
+    public UserModel editUserContacts(String gsonStr, String pass)
+            throws UserDoesNotExistException,
+            UserIncorrectPasswordException,
+            UserDataFormatException{
+        UserEntity newUser = UserEntityMapper.toUserEntity(gsonStr);
+        if (newUser == null) throw new UserDoesNotExistException();
+
+        //find user if there is one
+        UserEntity originalUser = userRepo.findByEmail(newUser.getEmail());
+        //if there is no user, throw exception
+        if (originalUser == null) throw new UserDoesNotExistException();
+        //check password, only user itself can change its info
+        try {
+            String hex = String.format("%064x", new BigInteger(1,
+                    MessageDigest.getInstance("SHA3-256").digest(
+                            pass.getBytes(StandardCharsets.UTF_8)
+                    )));
+            //in case user password is incorrect
+            if (!originalUser.getPassword().equals(hex)) throw new UserIncorrectPasswordException();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new UserDataFormatException();
+        }
+
+        //check if there is changes in contact fields
+        if (originalUser.getPhoneNumber() == null)
+            originalUser.setPhoneNumber(newUser.getPhoneNumber());
+        else if (!originalUser.getPhoneNumber().equals(newUser.getPhoneNumber()))
+            originalUser.setPhoneNumber(newUser.getPhoneNumber());
+
+        if (originalUser.getSocialContacts() == null)
+            originalUser.setSocialContacts(newUser.getSocialContacts());
+        else if (!originalUser.getSocialContacts().equals(newUser.getSocialContacts()))
+            originalUser.setSocialContacts(newUser.getSocialContacts());
+        //save changes
+        userRepo.save(originalUser);
+
+        return UserEntityMapper.toUserModel(userRepo.findById(originalUser.getID()), true);
+    }
 }

@@ -14,14 +14,14 @@ repositories {
 
 dependencies {
 	//SpringBoot MySQL
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.6.7'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.7.0'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.29'
 	//SpringBoot Web starter
-	implementation 'org.springframework.boot:spring-boot-starter-web:2.6.7'
+	implementation 'org.springframework.boot:spring-boot-starter-web:2.7.0'
 	//SpringBoot devtools
-	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.6.7'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.7.0'
 	//Spring test tools
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.6.7'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:2.7.0'
 	//Gson
 	implementation 'com.google.code.gson:gson:2.9.0'
 	//FlyWay migration for DB

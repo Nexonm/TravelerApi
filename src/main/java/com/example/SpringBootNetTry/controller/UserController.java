@@ -2,22 +2,18 @@ package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.entity.UserEntity;
 import com.example.SpringBootNetTry.exception.user.*;
-import com.example.SpringBootNetTry.mapper.UserEntityMapper;
-import com.example.SpringBootNetTry.model.CardModel;
-import com.example.SpringBootNetTry.model.UserModel;
 import com.example.SpringBootNetTry.service.UserService;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/people")
 public class UserController {
+
+    private static final String exceptionInController = "Произошла ошибка в PersonController";
 
 
     @Autowired
@@ -25,8 +21,9 @@ public class UserController {
 
     /**
      * Method calls when user enters mobile app.
+     *
      * @param email user email as login
-     * @param pass user password for email
+     * @param pass  user password for email
      * @return userModel as JSON str
      */
     @GetMapping("/login")
@@ -40,23 +37,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Произошла ошибка");
-        }
-    }
-
-    @Deprecated
-    @PostMapping("/add/gson")
-    public ResponseEntity makeUser(@RequestBody String gsonStr) {
-        try {
-            UserEntity user = (new Gson()).fromJson(gsonStr, UserEntity.class);
-            System.out.println("Gson cardEntity String: " + gsonStr);
-            System.out.println(user.toString());
-            //personRepo.save(person);
-            return ResponseEntity.ok("Человек был сохранён");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Произошла ошибка");
+            return ResponseEntity.badRequest().body("error");
         }
     }
 
@@ -106,6 +87,8 @@ public class UserController {
         }
     }
 
+    //it is not good, we can't just get some info from people by some id
+    //TODO delete comment this method for production
     @GetMapping("/get")
     public ResponseEntity getOnePersonById(@RequestParam(name = "id") long id) {
 //        System.out.println("some on trying to get info" + id);
@@ -116,36 +99,41 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
+            return ResponseEntity.badRequest().body(exceptionInController);
         }
     }
 
     //for admin tests
+    //TODO delete comment this method for production
     @GetMapping("/get/all")
     public ResponseEntity getAll(@RequestParam(name = "ap") String password) {
         try {
             return ResponseEntity.ok(pService.getAll(password));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
+            return ResponseEntity.badRequest().body(exceptionInController);
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity deletePersonById(@RequestParam(name = "id") long id) {
-        try {
-            if (pService.deletePersonById(id))
-                return ResponseEntity.ok("Пользователь был удалён");
-            else
-                throw new Exception();
-        } catch (UserDoesNotExistException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
-        }
-    }
+//    @DeleteMapping("/delete")
+//    public ResponseEntity deletePersonById(
+//            @RequestParam(name = "id") long id,
+//            @RequestParam(name = "email") String email,
+//            @RequestBody String pass ) {
+//        try {
+//            if (pService.deletePersonById(id))
+//                return ResponseEntity.ok("Пользователь был удалён");
+//            else
+//                throw new Exception();
+//        } catch (UserDoesNotExistException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body(exceptionInController);
+//        }
+//    }
 
     /**
      * Add card id to user.favoriteCards.
+     *
      * @param uid user id
      * @param cid card id
      * @return user.favoriteCards array list as JSON str
@@ -155,15 +143,32 @@ public class UserController {
             @RequestParam(name = "uid") long uid,
             @RequestParam(name = "cid") long cid
     ) {
-        try{
+        try {
 
             return ResponseEntity.ok(
                     (new Gson()).toJson(pService.addOneCardToFavorite(uid, cid))
             );
-        }catch (UserDoesNotExistException e){
+        } catch (UserDoesNotExistException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка в PersonController");
+            return ResponseEntity.badRequest().body(exceptionInController);
+        }
+    }
+
+    @PostMapping("/edit-contacts")
+    public ResponseEntity editUserContacts(
+            @RequestPart (name = "data") String gsonStr,
+            @RequestPart (name = "pass") String pass) {
+        try {
+            return ResponseEntity.ok(
+                    (new Gson()).toJson(pService.editUserContacts(gsonStr, pass))
+            );
+        } catch (UserDoesNotExistException |
+                UserIncorrectPasswordException |
+                UserDataFormatException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(exceptionInController);
         }
     }
 }

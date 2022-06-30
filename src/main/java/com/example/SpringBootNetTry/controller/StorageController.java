@@ -1,6 +1,7 @@
 package com.example.SpringBootNetTry.controller;
 
 import com.example.SpringBootNetTry.exception.card.CardDoesNotExistsException;
+import com.example.SpringBootNetTry.exception.card.CardWasDeletedException;
 import com.example.SpringBootNetTry.exception.storage.StorageException;
 import com.example.SpringBootNetTry.exception.user.UserDoesNotExistException;
 import com.example.SpringBootNetTry.mapper.UserEntityMapper;
@@ -162,21 +163,10 @@ public class StorageController {
         return "listFiles";
     }
 
-//    @GetMapping("/download/{filename:.+}")
-//    @ResponseBody
-//    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
-//
-//        Resource resource = storageService.loadAsResource(filename);
-//
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION,
-//                        "attachment; filename=\"" + resource.getFilename() + "\"")
-//                .body(resource);
-//    }
 
     @PostMapping(path = "/upload-file-user")
     public ResponseEntity uploadFileUser(
-            @RequestParam("file") MultipartFile file,
+            @RequestParam(name = "file") MultipartFile file,
             @RequestParam(name = "uid") String id
     ) {
         try {
@@ -208,7 +198,8 @@ public class StorageController {
             String name = storageService.storeCardsPhoto(file, getNum(id));
             System.out.println("FILE name for cid:" + id + " is " + name);
             return ResponseEntity.ok(cardService.getOneCardById(getNum(id)));
-        } catch (CardDoesNotExistsException exi) {
+        } catch (CardDoesNotExistsException |
+                CardWasDeletedException exi) {
             return ResponseEntity.badRequest().body(exi.getMessage());
         } catch (StorageException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

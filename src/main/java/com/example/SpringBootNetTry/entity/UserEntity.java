@@ -267,11 +267,22 @@ public class UserEntity {
         return userCards;
     }
 
+    //as we work with database we need to just add new card to user
     public void setUserCards(CardEntity userCards) {
         if (this.userCards == null)
             this.userCards = new ArrayList<CardEntity>();
         if (userCards != null)
             this.userCards.add(userCards);
+    }
+
+
+    /**
+     * It is not allowed to delete card from card list. Method needed to protect such deletion.
+     *
+     * @param cid card id
+     */
+    public void deleteCardByIdFromUsersCards(long cid) {
+
     }
 
     public ArrayList<Long> getUserFavoriteCards() {
@@ -297,4 +308,5 @@ public class UserEntity {
     public void setCharacteristics(String characteristics) {
         this.characteristics = characteristics;
     }
+
 }
